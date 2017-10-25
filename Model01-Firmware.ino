@@ -12,9 +12,17 @@
  * as well as the Kaleidoscope plugins we use in the Model 01's firmware
  */
 
+// avr-gcc compiles files with .c ending with C name mangling
+//
+//extern "C" {
+//#include "papageno.h"
+//}
 
 // The Kaleidoscope core
 #include "Kaleidoscope.h"
+
+// Support for papageno features
+#include "Kaleidoscope-Papageno.h"
 
 // Support for keys that move the mouse
 #include "Kaleidoscope-MouseKeys.h"
@@ -26,7 +34,7 @@
 #include "Kaleidoscope-LEDControl.h"
 
 // Support for "Numlock" mode, which is mostly just the Numlock specific LED mode
-#include "Kaleidoscope-Numlock.h"
+//#include "Kaleidoscope-Numlock.h"
 
 // Support for an "LED off mode"
 #include "LED-Off.h"
@@ -36,26 +44,25 @@
 #include "Kaleidoscope-LEDEffect-BootGreeting.h"
 
 // Support for LED modes that set all LEDs to a single color
-#include "Kaleidoscope-LEDEffect-SolidColor.h"
+//#include "Kaleidoscope-LEDEffect-SolidColor.h"
 
 // Support for an LED mode that makes all the LEDs 'breathe'
-#include "Kaleidoscope-LEDEffect-Breathe.h"
+//#include "Kaleidoscope-LEDEffect-Breathe.h"
 
 // Support for an LED mode that makes a red pixel chase a blue pixel across the keyboard
-#include "Kaleidoscope-LEDEffect-Chase.h"
+//#include "Kaleidoscope-LEDEffect-Chase.h"
 
 // Support for LED modes that pulse the keyboard's LED in a rainbow pattern
-#include "Kaleidoscope-LEDEffect-Rainbow.h"
+//#include "Kaleidoscope-LEDEffect-Rainbow.h"
 
 // Support for an LED mode that lights up the keys as you press them
-#include "Kaleidoscope-LED-Stalker.h"
+//#include "Kaleidoscope-LED-Stalker.h"
 
 // Support for an LED mode that prints the keys you press in letters 4px high
-#include "Kaleidoscope-LED-AlphaSquare.h"
+//#include "Kaleidoscope-LED-AlphaSquare.h"
 
 // Support for Keyboardio's internal keyboard testing mode
-#include "Kaleidoscope-Model01-TestMode.h"
-
+//#include "Kaleidoscope-Model01-TestMode.h"
 
 /** This 'enum' is a list of all the macros used by the Model 01's firmware
   * The names aren't particularly important. What is important is that each
@@ -239,13 +246,13 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
 // Keyboardio Model 01.
 
 
-static kaleidoscope::LEDSolidColor solidRed(160, 0, 0);
-static kaleidoscope::LEDSolidColor solidOrange(140, 70, 0);
-static kaleidoscope::LEDSolidColor solidYellow(130, 100, 0);
-static kaleidoscope::LEDSolidColor solidGreen(0, 160, 0);
-static kaleidoscope::LEDSolidColor solidBlue(0, 70, 130);
-static kaleidoscope::LEDSolidColor solidIndigo(0, 0, 170);
-static kaleidoscope::LEDSolidColor solidViolet(130, 0, 120);
+//static kaleidoscope::LEDSolidColor solidRed(160, 0, 0);
+//static kaleidoscope::LEDSolidColor solidOrange(140, 70, 0);
+//static kaleidoscope::LEDSolidColor solidYellow(130, 100, 0);
+//static kaleidoscope::LEDSolidColor solidGreen(0, 160, 0);
+//static kaleidoscope::LEDSolidColor solidBlue(0, 70, 130);
+//static kaleidoscope::LEDSolidColor solidIndigo(0, 0, 170);
+//static kaleidoscope::LEDSolidColor solidViolet(130, 0, 120);
 
 
 
@@ -266,7 +273,7 @@ void setup() {
     &BootGreetingEffect,
 
     // The hardware test mode, which can be invoked by tapping Prog, LED and the left Fn button at the same time.
-    &TestMode,
+    //&TestMode,
 
     // LEDControl provides support for other LED modes
     &LEDControl,
@@ -276,61 +283,63 @@ void setup() {
 
     // The rainbow effect changes the color of all of the keyboard's keys at the same time
     // running through all the colors of the rainbow.
-    &LEDRainbowEffect,
+    //&LEDRainbowEffect,
 
     // The rainbow wave effect lights up your keyboard with all the colors of a rainbow
     // and slowly moves the rainbow across your keyboard
-    &LEDRainbowWaveEffect,
+    //&LEDRainbowWaveEffect,
 
     // The chase effect follows the adventure of a blue pixel which chases a red pixel across
     // your keyboard. Spoiler: the blue pixel never catches the red pixel
-    &LEDChaseEffect,
+    //&LEDChaseEffect,
 
     // These static effects turn your keyboard's LEDs a variety of colors
-    &solidRed, &solidOrange, &solidYellow, &solidGreen, &solidBlue, &solidIndigo, &solidViolet,
+    //&solidRed, &solidOrange, &solidYellow, &solidGreen, &solidBlue, &solidIndigo, &solidViolet,
 
     // The breathe effect slowly pulses all of the LEDs on your keyboard
-    &LEDBreatheEffect,
+    //&LEDBreatheEffect,
 
     // The AlphaSquare effect prints each character you type, using your
     // keyboard's LEDs as a display
-    &AlphaSquareEffect,
+    //&AlphaSquareEffect,
 
     // The stalker effect lights up the keys you've pressed recently
-    &StalkerEffect,
+    //&StalkerEffect,
 
     // The numlock plugin is responsible for lighting up the 'numpad' mode
     // with a custom LED effect
-    &NumLock,
+    //&NumLock,
 
     // The macros plugin adds support for macros
-    &Macros,
+    //&Macros,
 
     // The MouseKeys plugin lets you add keys to your keymap which move the mouse.
-    &MouseKeys
+    &MouseKeys,
+
+    &Papageno
   );
 
   // While we hope to improve this in the future, the NumLock plugin
   // needs to be explicitly told which keymap layer is your numpad layer
-  NumLock.numPadLayer = NUMPAD;
+  //NumLock.numPadLayer = NUMPAD;
 
   // We configure the AlphaSquare effect to use RED letters
-  AlphaSquare.color = { 255, 0, 0 };
+  //AlphaSquare.color = { 255, 0, 0 };
 
   // We set the brightness of the rainbow effects to 150 (on a scale of 0-255)
   // This draws more than 500mA, but looks much nicer than a dimmer effect
-  LEDRainbowEffect.brightness(150);
-  LEDRainbowWaveEffect.brightness(150);
+  //LEDRainbowEffect.brightness(150);
+  //LEDRainbowWaveEffect.brightness(150);
 
   // The LED Stalker mode has a few effects. The one we like is
   // called 'BlazingTrail'. For details on other options,
   // see https://github.com/keyboardio/Kaleidoscope-LED-Stalker
-  StalkerEffect.variant = STALKER(BlazingTrail);
+  //StalkerEffect.variant = STALKER(BlazingTrail);
 
   // We want to make sure that the firmware starts with LED effects off
   // This avoids over-taxing devices that don't have a lot of power to share
   // with USB devices
-  LEDOff.activate();
+  //LEDOff.activate();
 }
 
 /** loop is the second of the standard Arduino sketch functions.
@@ -342,4 +351,70 @@ void setup() {
 
 void loop() {
   Kaleidoscope.loop();
+}
+
+#define NG_KEY_1 1, 1
+#define NG_KEY_2 1, 2
+
+#define PPG_KLS_KEYPOS(KEY_ALIAS, S) PPG_KLS_KEYPOS_HEX(KEY_ALIAS, S)
+
+#define NG_TEST_KEY_1(S)               PPG_KLS_KEYPOS(NG_KEY_1, S)
+#define NG_TEST_KEY_2(S)               PPG_KLS_KEYPOS(NG_KEY_2, S)
+
+#define PPG_KLS_MATRIX_POSITION_INPUTS_ALPHABETIC(OP) \
+__NL__      OP(NG_TEST_KEY_1) \
+__NL__      OP(NG_TEST_KEY_2)
+
+// Define a set of Papageno inputs that are associated with
+// keyboard matrix positions.
+//
+// Important: - The macro must be named PPG_KLS_MATRIX_POSITION_INPUTS!
+//            - If no inputs are supposed to be associated with
+//              matrix positions, define an empty PPG_KLS_MATRIX_POSITION_INPUTS
+//
+#define PPG_KLS_MATRIX_POSITION_INPUTS(OP) \
+\
+__NL__      PPG_KLS_MATRIX_POSITION_INPUTS_ALPHABETIC(OP)
+
+// Define a set of Papageno inputs that are associated with
+// qmk keycodes.
+//
+// Important: - The macro must be named PPG_KLS_KEYCOKC_INPUTS!
+//            - If no inputs are supposed to be associated with
+//              keycodes, define an empty PPG_KLS_KEYCOKC_INPUTS
+//
+#define PPG_KLS_KEYCODE_INPUTS(OP)
+
+// Initialize Papageno data structures for qmk
+// This is based on the definitions of 
+//
+//    PPG_KLS_MATRIX_POSITION_INPUTS
+//
+// and
+//
+//    PPG_KLS_KEYCODE_INPUTS
+//
+PPG_KLS_INIT_DATA_STRUCTURES
+
+void papageno_setup()
+{
+   PPG_KLS_INIT
+   
+   // Only list symbols here that are required after initialization
+   //
+   // Note: The functions passed as PPG_Leader_Functions are only required
+   //       during setup.
+   // 
+   //PPG_KLS_COMPRESSION_REGISTER_SYMBOLS(NG_PPG_SYMBOLS)
+   
+   kaleidoscope::Papageno::setTimeoutMillis(200);
+
+   PPG_KLS_KEYPOS_CLUSTER_ACTION_KEYCODE(
+      0, // Layer
+      (Key_Enter),
+      NG_TEST_KEY_1,
+      NG_TEST_KEY_2
+   );
+
+   PPG_KLS_COMPILE
 }
