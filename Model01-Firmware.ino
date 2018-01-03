@@ -25,7 +25,7 @@
 #include "Kaleidoscope-Papageno.h"
 
 // Support for keys that move the mouse
-#include "Kaleidoscope-MouseKeys.h"
+//#include "Kaleidoscope-MouseKeys.h"
 
 // Support for macros
 #include "Kaleidoscope-Macros.h"
@@ -150,9 +150,9 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
 
   [FUNCTION] =  KEYMAP_STACKED
   (___,      Key_F1,           Key_F2,      Key_F3,     Key_F4,        Key_F5,           XXX,
-   Key_Tab,  ___,              Key_mouseUp, ___,        Key_mouseBtnR, Key_mouseWarpEnd, Key_mouseWarpNE,
-   Key_Home, Key_mouseL,       Key_mouseDn, Key_mouseR, Key_mouseBtnL, Key_mouseWarpNW,
-   Key_End,  Key_PrintScreen,  Key_Insert,  ___,        Key_mouseBtnM, Key_mouseWarpSW,  Key_mouseWarpSE,
+   Key_Tab,  ___,              ___, ___,        ___, ___, ___,
+   Key_Home, ___,       ___, ___, ___, ___,
+   Key_End,  Key_PrintScreen,  Key_Insert,  ___,        ___, ___,  ___,
    ___, Key_Delete, ___, ___,
    ___,
 
@@ -314,7 +314,7 @@ void setup() {
     //&Macros,
 
     // The MouseKeys plugin lets you add keys to your keymap which move the mouse.
-    &MouseKeys,
+    //&MouseKeys,
 
     &Papageno
   );
@@ -353,8 +353,8 @@ void loop() {
   Kaleidoscope.loop();
 }
 
-#define NG_KEY_1 1, 1
-#define NG_KEY_2 1, 2
+#define NG_KEY_1 3, 7
+#define NG_KEY_2 3, 8
 
 #define PPG_KLS_KEYPOS(KEY_ALIAS, S) PPG_KLS_KEYPOS_HEX(KEY_ALIAS, S)
 
