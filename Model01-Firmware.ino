@@ -25,7 +25,7 @@
 #include "Kaleidoscope-Papageno.h"
 
 // Support for keys that move the mouse
-//#include "Kaleidoscope-MouseKeys.h"
+#include "Kaleidoscope-MouseKeys.h"
 
 // Support for macros
 #include "Kaleidoscope-Macros.h"
@@ -33,8 +33,8 @@
 // Support for controlling the keyboard's LEDs
 #include "Kaleidoscope-LEDControl.h"
 
-// Support for "Numlock" mode, which is mostly just the Numlock specific LED mode
-//#include "Kaleidoscope-Numlock.h"
+// Support for "Numpad" mode, which is mostly just the Numpad specific LED mode
+#include "Kaleidoscope-NumPad.h"
 
 // Support for an "LED off mode"
 #include "LED-Off.h"
@@ -63,6 +63,10 @@
 
 // Support for Keyboardio's internal keyboard testing mode
 //#include "Kaleidoscope-Model01-TestMode.h"
+
+// Support for host power management (suspend & wakeup)
+// #include "Kaleidoscope-HostPowerManagement.h"
+
 
 /** This 'enum' is a list of all the macros used by the Model 01's firmware
   * The names aren't particularly important. What is important is that each
@@ -122,9 +126,10 @@ enum { MACRO_VERSION_INFO,
   * The third one is layer 2.
   * This 'enum' lets us use names like QWERTY, FUNCTION, and NUMPAD in place of
   * the numbers 0, 1 and 2.
+  *
   */
 
-enum { QWERTY, FUNCTION, NUMPAD }; // layers
+enum { QWERTY, NUMPAD, FUNCTION }; // layers
 
 /* This comment temporarily turns off astyle's indent enforcement
  *   so we can make the keymaps actually resemble the physical key layout better
@@ -141,28 +146,12 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
    Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
    ShiftToLayer(FUNCTION),
 
-   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         Key_KeypadNumLock,
+   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         LockLayer(NUMPAD),
    Key_Enter,     Key_Y, Key_U, Key_I,     Key_O,         Key_P,         Key_Equals,
                   Key_H, Key_J, Key_K,     Key_L,         Key_Semicolon, Key_Quote,
    Key_RightAlt,  Key_N, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_Minus,
    Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
    ShiftToLayer(FUNCTION)),
-
-  [FUNCTION] =  KEYMAP_STACKED
-  (___,      Key_F1,           Key_F2,      Key_F3,     Key_F4,        Key_F5,           XXX,
-   Key_Tab,  ___,              ___, ___,        ___, ___, ___,
-   Key_Home, ___,       ___, ___, ___, ___,
-   Key_End,  Key_PrintScreen,  Key_Insert,  ___,        ___, ___,  ___,
-   ___, Key_Delete, ___, ___,
-   ___,
-
-   Consumer_ScanPreviousTrack, Key_F6,                 Key_F7,                   Key_F8,                   Key_F9,          Key_F10,          Key_F11,
-   Consumer_PlaySlashPause,    Consumer_ScanNextTrack, Key_LeftCurlyBracket,     Key_RightCurlyBracket,    Key_LeftBracket, Key_RightBracket, Key_F12,
-                               Key_LeftArrow,          Key_DownArrow,            Key_UpArrow,              Key_RightArrow,  ___,              ___,
-   Key_PcApplication,          Key_Mute,               Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,             Key_Backslash,    Key_Pipe,
-   ___, ___, Key_Enter, ___,
-   ___),
-
 
   [NUMPAD] =  KEYMAP_STACKED
   (___, ___, ___, ___, ___, ___, ___,
@@ -177,7 +166,23 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
                            ___, Key_Keypad1, Key_Keypad2,   Key_Keypad3,        Key_Equals,         Key_Quote,
    ___,                    ___, Key_Keypad0, Key_KeypadDot, Key_KeypadMultiply, Key_KeypadDivide,   Key_Enter,
    ___, ___, ___, ___,
+   ___),
+
+  [FUNCTION] =  KEYMAP_STACKED
+  (___,      Key_F1,           Key_F2,      Key_F3,     Key_F4,        Key_F5,           XXX,
+   Key_Tab,  ___,              ___, ___,        ___, ___, ___,
+   Key_Home, ___,       ___, ___, ___, ___,
+   Key_End,  Key_PrintScreen,  Key_Insert,  ___,        ___, ___,  ___,
+   ___, Key_Delete, ___, ___,
+   ___,
+
+   Consumer_ScanPreviousTrack, Key_F6,                 Key_F7,                   Key_F8,                   Key_F9,          Key_F10,          Key_F11,
+   Consumer_PlaySlashPause,    Consumer_ScanNextTrack, Key_LeftCurlyBracket,     Key_RightCurlyBracket,    Key_LeftBracket, Key_RightBracket, Key_F12,
+                               Key_LeftArrow,          Key_DownArrow,            Key_UpArrow,              Key_RightArrow,  ___,              ___,
+   Key_PcApplication,          Key_Mute,               Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,             Key_Backslash,    Key_Pipe,
+   ___, ___, Key_Enter, ___,
    ___)
+
 };
 
 /* Re-enable astyle's indent enforcement */
@@ -254,7 +259,32 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
 //static kaleidoscope::LEDSolidColor solidIndigo(0, 0, 170);
 //static kaleidoscope::LEDSolidColor solidViolet(130, 0, 120);
 
+/** toggleLedsOnSuspendResume toggles the LEDs off when the host goes to sleep,
+ * and turns them back on when it wakes up.
+ */
+// void toggleLedsOnSuspendResume(kaleidoscope::HostPowerManagement::Event event) {
+//   switch (event) {
+//   case kaleidoscope::HostPowerManagement::Suspend:
+//     LEDControl.paused = true;
+//     LEDControl.set_all_leds_to({0, 0, 0});
+//     LEDControl.syncLeds();
+//     break;
+//   case kaleidoscope::HostPowerManagement::Resume:
+//     LEDControl.paused = false;
+//     LEDControl.refreshAll();
+//     break;
+//   case kaleidoscope::HostPowerManagement::Sleep:
+//     break;
+//   }
+// }
 
+/** hostPowerManagementEventHandler dispatches power management events (suspend,
+ * resume, and sleep) to other functions that perform action based on these
+ * events.
+ */
+// void hostPowerManagementEventHandler(kaleidoscope::HostPowerManagement::Event event) {
+//   toggleLedsOnSuspendResume(event);
+// }
 
 /** The 'setup' function is one of the two standard Arduino sketch functions.
   * It's called when your keyboard first powers up. This is where you set up
@@ -269,6 +299,9 @@ void setup() {
   // The order can be important. For example, LED effects are
   // added in the order they're listed here.
   Kaleidoscope.use(
+
+    &Papageno,
+    
     // The boot greeting effect pulses the LED button for 10 seconds after the keyboard is first connected
     &BootGreetingEffect,
 
@@ -306,22 +339,24 @@ void setup() {
     // The stalker effect lights up the keys you've pressed recently
     //&StalkerEffect,
 
-    // The numlock plugin is responsible for lighting up the 'numpad' mode
+    // The numpad plugin is responsible for lighting up the 'numpad' mode
     // with a custom LED effect
-    //&NumLock,
+    &NumPad,
 
     // The macros plugin adds support for macros
     //&Macros,
 
     // The MouseKeys plugin lets you add keys to your keymap which move the mouse.
-    //&MouseKeys,
+    &MouseKeys
 
-    &Papageno
+    // The HostPowerManagement plugin enables waking up the host from suspend,
+    // and allows us to turn LEDs off when it goes to sleep.
+//     &HostPowerManagement
   );
 
-  // While we hope to improve this in the future, the NumLock plugin
+  // While we hope to improve this in the future, the NumPad plugin
   // needs to be explicitly told which keymap layer is your numpad layer
-  //NumLock.numPadLayer = NUMPAD;
+  NumPad.numPadLayer = NUMPAD;
 
   // We configure the AlphaSquare effect to use RED letters
   //AlphaSquare.color = { 255, 0, 0 };
@@ -335,6 +370,9 @@ void setup() {
   // called 'BlazingTrail'. For details on other options,
   // see https://github.com/keyboardio/Kaleidoscope-LED-Stalker
   //StalkerEffect.variant = STALKER(BlazingTrail);
+
+  // We want the keyboard to be able to wake the host up from suspend.
+//   HostPowerManagement.enableWakeup();
 
   // We want to make sure that the firmware starts with LED effects off
   // This avoids over-taxing devices that don't have a lot of power to share
@@ -352,6 +390,8 @@ void setup() {
 void loop() {
   Kaleidoscope.loop();
 }
+
+#if 0
 
 #define NG_KEY_1 3, 7
 #define NG_KEY_2 3, 8
@@ -396,6 +436,7 @@ __NL__      PPG_KLS_MATRIX_POSITION_INPUTS_ALPHABETIC(OP)
 //
 PPG_KLS_INIT_DATA_STRUCTURES
 
+
 void papageno_setup()
 {
    PPG_KLS_INIT
@@ -407,7 +448,7 @@ void papageno_setup()
    // 
    //PPG_KLS_COMPRESSION_REGISTER_SYMBOLS(NG_PPG_SYMBOLS)
    
-   kaleidoscope::Papageno::setTimeoutMillis(200);
+   kaleidoscope::papageno::Papageno::setTimeoutMillis(200);
 
    PPG_KLS_KEYPOS_CLUSTER_ACTION_KEYCODE(
       0, // Layer
@@ -418,3 +459,24 @@ void papageno_setup()
 
    PPG_KLS_COMPILE
 }
+#endif
+
+#if 0
+papageno_start
+
+setting: timeout = $200$
+
+action: Key_Enter <KEYCODE>
+
+input: TestKey1 <KEYPOS> = $3, 7$
+input: TestKey2 <KEYPOS> = $3, 8$
+
+{TestKey1, TestKey2} : Key_Enter
+
+papageno_end
+#endif
+
+// TODO: Add a mode of operation where Papageno only tracks events
+//       but passes them on instead of swallowing them.
+
+#include "Kaleidoscope-Papageno-GLS.cpp"
