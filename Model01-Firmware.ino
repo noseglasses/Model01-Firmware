@@ -23,7 +23,6 @@
 
 // Support for papageno features
 #include "Kaleidoscope-Papageno.h"
-#include "ppg_debug.h"
 
 // Support for keys that move the mouse
 #include "Kaleidoscope-MouseKeys.h"
@@ -48,7 +47,7 @@
 //#include "Kaleidoscope-LEDEffect-SolidColor.h"
 
 // Support for an LED mode that makes all the LEDs 'breathe'
-#include "Kaleidoscope-LEDEffect-Breathe.h"
+//#include "Kaleidoscope-LEDEffect-Breathe.h"
 
 // Support for an LED mode that makes a red pixel chase a blue pixel across the keyboard
 //#include "Kaleidoscope-LEDEffect-Chase.h"
@@ -198,6 +197,7 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
     ___,         DE_SQ2,        Key_F1,      Key_F2,      Key_F3,   Key_F10,  ___,   
     ___,         ___,           ___,         ___,
     ___) 
+
 };
 
 /* Re-enable astyle's indent enforcement */
@@ -345,6 +345,9 @@ void setup() {
     // These static effects turn your keyboard's LEDs a variety of colors
     //&solidRed, &solidOrange, &solidYellow, &solidGreen, &solidBlue, &solidIndigo, &solidViolet,
 
+    // The breathe effect slowly pulses all of the LEDs on your keyboard
+    //&LEDBreatheEffect,
+
     // The AlphaSquare effect prints each character you type, using your
     // keyboard's LEDs as a display
     //&AlphaSquareEffect,
@@ -365,11 +368,7 @@ void setup() {
     // The HostPowerManagement plugin enables waking up the host from suspend,
     // and allows us to turn LEDs off when it goes to sleep.
 //     &HostPowerManagement
-
 #endif
-
-    // The breathe effect slowly pulses all of the LEDs on your keyboard
-    &LEDBreatheEffect
   );
 
   // While we hope to improve this in the future, the NumPad plugin
@@ -377,11 +376,7 @@ void setup() {
 //   NumPad.numPadLayer = NUMPAD;
 
   // We configure the AlphaSquare effect to use RED letters
-<<<<<<< HEAD
   //AlphaSquare.color = { 255, 0, 0 };
-=======
-  AlphaSquare.color = CRGB(255, 0, 0);
->>>>>>> origin/master
 
   // We set the brightness of the rainbow effects to 150 (on a scale of 0-255)
   // This draws more than 500mA, but looks much nicer than a dimmer effect
@@ -413,6 +408,9 @@ void loop() {
   Kaleidoscope.loop();
 }
 
+#if 0
+
+>>>>>>> noseglasses/papageno
 #define NG_KEY_1 3, 7
 #define NG_KEY_2 3, 8
 
@@ -480,3 +478,24 @@ void papageno_setup()
 
    PPG_KLS_COMPILE
 }
+#endif
+
+/*
+papageno_start
+
+setting: timeout = $200$
+
+action: Key_Enter <KEYCODE>
+
+input: TestKey1 <KEYPOS> = $3, 7$
+input: TestKey2 <KEYPOS> = $3, 8$
+
+{TestKey1, TestKey2} : Key_Enter
+
+papageno_end
+*/
+
+// TODO: Add a mode of operation where Papageno only tracks events
+//       but passes them on instead of swallowing them.
+
+#include "Kaleidoscope-Papageno-GLS.cpp"
