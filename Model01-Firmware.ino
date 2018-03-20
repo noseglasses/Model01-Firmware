@@ -39,6 +39,8 @@
 // Support for an "LED off mode"
 #include "LED-Off.h"
 
+#include "Kaleidoscope-OneShot.h"
+
 // Support for the "Boot greeting" effect, which pulses the 'LED' button for 10s
 // when the keyboard is connected to a computer (or that computer is powered on)
 #include "Kaleidoscope-LEDEffect-BootGreeting.h"
@@ -139,46 +141,47 @@ enum { NORMAN, M1, M2, M3 }; // layers
 const Key keymaps[][ROWS][COLS] PROGMEM = {
 
   [NORMAN] = KEYMAP_STACKED
-  (LCTL(Key_X),  LCTL(Key_C),   LCTL(Key_V), LCTL(Key_F), ___,      ___,      ___,
+  (LCTRL(Key_X),  LCTRL(Key_C),   LCTRL(Key_V), LCTRL(Key_F), ___,      ___,      ___,
    OSL(M3),      Key_Q,         Key_W,       Key_D,       Key_F,    Key_K,    ___,
    OSL(M2),      Key_A,         Key_S,       Key_E,       Key_T,    Key_G, // home row
-   OSM(MOD_LCTL),Key_Z,         Key_X,       Key_C,       Key_V,    Key_B,    ___,
-   ___,          ___,           Key_Backspace, OSM(MOD_LSFT),
+   OSM(LeftControl),Key_Z,         Key_X,       Key_C,       Key_V,    Key_B,    ___,
+   ___,          ___,           Key_Backspace, OSM(LeftShift),
    OSL(M1),
 
-   ___,          ___,           ___,         OSM(MOD_ALT), ___,     LCTL(Key_S), Key_Escape,
+   ___,          ___,           ___,         OSM(LeftAlt), ___,     LCTRL(Key_S), Key_Escape,
    ___,          Key_J,         Key_U,       Key_R,       Key_L,    Key_Semicolon, OSL(M3),
                  Key_Y,         Key_N,       Key_I,       Key_O,    Key_H,    OSL(M2),
-   ___,          Key_P,         Key_M,       Key_Comma,   Key_Period,Key_Slash,OSM(MOD_LCTL),
+   ___,          Key_P,         Key_M,       Key_Comma,   Key_Period,Key_Slash,OSM(LeftControl),
    OSL(M1),      Key_Space,     ___,         ___,
    OSL(M1)),
    
    [M1] = KEYMAP_STACKED
    (___,         ___,           ___,         ___,         ___,      ___,      ___,
-    ___,         Key_At,        Key_Underscore, Key_LeftBrace, Key_RightBrace, Key_Circle, ___,
-    ___,         Key_Backslash, Key_Grave,   Gey_LeftCurlyBrace, Key_RightCurlyBrace, Key_Asterisk,
-    ___,         Key_Hash,      Key_Tilda,   Key_Pipe,    Key_Dollar, ALTG(KC_5), ___,
+    ___,         LSHIFT(Key_2),        LSHIFT(Key_Minus), Key_LeftBracket, Key_RightBracket, LSHIFT(Key_6), ___,
+    ___,         Key_Backslash, Key_Backtick,   LSHIFT(Key_LeftBracket), LSHIFT(Key_RightBracket), LSHIFT(Key_8),
+    ___,         LSHIFT(Key_3),      LSHIFT(Key_Backtick),   Key_Pipe,    LSHIFT(Key_4), RALT(Key_5), ___,
     ___,         ___,           ___,         ___,        
     ___,
     
     ___,         ___,           ___,         ___,         ___,      ___,      ___,
-    ___,         Key_Exclamation, Key_Less,  Key_More,    Key_Equal, Key_Ampersand, ___,
-                 SHIFT(KC_SLASH), Key_LeftBrace, Key_RightBrace, Key_Minus, Key_Colon, ___,
-    ___,         Key_Plus,      Key_Percentage, SHIFT(Key_Quote), Key_Quote, Key_Semicolon, ___,
+    ___,         LSHIFT(Key_1), LSHIFT(Key_Comma),  LSHIFT(Key_Period),    Key_Equals, LSHIFT(Key_7), ___,
+                 LSHIFT(Key_Slash), LSHIFT(Key_9), LSHIFT(Key_9), Key_Minus, Key_Period, ___,
+    ___,         LSHIFT(Key_Equals),      LSHIFT(Key_5), LSHIFT(Key_Quote), Key_Quote, Key_Semicolon, ___,
     ___,         ___,           ___,         ___,
     ___),
     
+    
    [M2] = KEYMAP_STACKED
    (___,         ___,           ___,         ___,         ___,      ___,      ___,
-    ___,         Key_PageUp,    Key_Backspace, Key_Up,    Key_Del,  Key_PageDown, ___,
-    ___,         Key_Home,      Key_Left,    Key_Down,    Key_Right, Key_End,
-    ___,         Nothing,       Key_Tab,     Nothing,     Key_Enter, Nothing, ___,
+    ___,         Key_PageUp,    Key_Backspace, Key_UpArrow,    Key_Delete,  Key_PageDown, ___,
+    ___,         Key_Home,      Key_LeftArrow,    Key_DownArrow,    Key_RightArrow, Key_End,
+    ___,         XXX,       Key_Tab,     XXX,     Key_Enter, XXX, ___,
     ___,         ___,           ___,         ___,
     ___,
     
     ___,         ___,           ___,         ___,         ___,      ___,      ___,
-    ___,         Nothing,       Key_7,       Key_8,       Key_9,    Nothing,  ___,
-                 Nothing,       Key_4,       Key_5,       Key_6,    Key_Colon,___,
+    ___,         XXX,       Key_7,       Key_8,       Key_9,    XXX,  ___,
+                 XXX,       Key_4,       Key_5,       Key_6,    Key_Period,___,
     ___,         Key_0,         Key_1,       Key_2,       Key_3,    Key_Comma,___,
     ___,         ___,           ___,         ___,
     ___),
@@ -192,9 +195,9 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
     ___,
     
     ___,         ___,           ___,         ___,         ___,      ___,      ___,
-    ___,         Nothing,       Key_F7,      Key_F8,      Key_F9,   Key_F12,  ___,
-                 DE_SQ3,        Key_F4,      Key_F5,      Key_F6,   Key_F11,  ___,
-    ___,         DE_SQ2,        Key_F1,      Key_F2,      Key_F3,   Key_F10,  ___,   
+    ___,         XXX,       Key_F7,      Key_F8,      Key_F9,   Key_F12,  ___,
+                 XXX,        Key_F4,      Key_F5,      Key_F6,   Key_F11,  ___,
+    ___,         XXX,        Key_F1,      Key_F2,      Key_F3,   Key_F10,  ___,   
     ___,         ___,           ___,         ___,
     ___) 
 
@@ -315,7 +318,7 @@ void setup() {
   // added in the order they're listed here.
   Kaleidoscope.use(
 
-    &Papageno,
+    &Papageno 
    
 #if 0
     // The boot greeting effect pulses the LED button for 10 seconds after the keyboard is first connected
@@ -481,9 +484,9 @@ void papageno_setup()
 #endif
 
 /*
-papageno_start
+glockenspiel_begin
 
-setting: timeout = $200$
+default: event_timeout = $200$
 
 action: Key_Enter <KEYCODE>
 
@@ -492,10 +495,10 @@ input: TestKey2 <KEYPOS> = $3, 8$
 
 {TestKey1, TestKey2} : Key_Enter
 
-papageno_end
+glockenspiel_end
 */
 
 // TODO: Add a mode of operation where Papageno only tracks events
 //       but passes them on instead of swallowing them.
 
-#include "Kaleidoscope-Papageno-GLS.cpp"
+// #include "Kaleidoscope-Papageno-GLS.cpp"
