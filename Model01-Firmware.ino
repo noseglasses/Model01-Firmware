@@ -411,89 +411,103 @@ void loop() {
   Kaleidoscope.loop();
 }
 
-#if 0
-
->>>>>>> noseglasses/papageno
-#define NG_KEY_1 3, 7
-#define NG_KEY_2 3, 8
-
-#define PPG_KLS_KEYPOS(KEY_ALIAS, S) PPG_KLS_KEYPOS_HEX(KEY_ALIAS, S)
-
-#define NG_TEST_KEY_1(S)               PPG_KLS_KEYPOS(NG_KEY_1, S)
-#define NG_TEST_KEY_2(S)               PPG_KLS_KEYPOS(NG_KEY_2, S)
-
-#define PPG_KLS_MATRIX_POSITION_INPUTS_ALPHABETIC(OP) \
-__NL__      OP(NG_TEST_KEY_1) \
-__NL__      OP(NG_TEST_KEY_2)
-
-// Define a set of Papageno inputs that are associated with
-// keyboard matrix positions.
-//
-// Important: - The macro must be named PPG_KLS_MATRIX_POSITION_INPUTS!
-//            - If no inputs are supposed to be associated with
-//              matrix positions, define an empty PPG_KLS_MATRIX_POSITION_INPUTS
-//
-#define PPG_KLS_MATRIX_POSITION_INPUTS(OP) \
-\
-__NL__      PPG_KLS_MATRIX_POSITION_INPUTS_ALPHABETIC(OP)
-
-// Define a set of Papageno inputs that are associated with
-// qmk keycodes.
-//
-// Important: - The macro must be named PPG_KLS_KEYCODE_INPUTS!
-//            - If no inputs are supposed to be associated with
-//              keycodes, define an empty PPG_KLS_KEYCODE_INPUTS
-//
-#define PPG_KLS_KEYCODE_INPUTS(OP)
-
-// Initialize Papageno data structures for qmk
-// This is based on the definitions of 
-//
-//    PPG_KLS_MATRIX_POSITION_INPUTS
-//
-// and
-//
-//    PPG_KLS_KEYCODE_INPUTS
-//
-PPG_KLS_INIT_DATA_STRUCTURES
-
-void papageno_setup()
-{
-   PPG_KLS_INIT
-   
-   // Only list symbols here that are required after initialization
-   //
-   // Note: The functions passed as PPG_Leader_Functions are only required
-   //       during setup.
-   // 
-   //PPG_KLS_COMPRESSION_REGISTER_SYMBOLS(NG_PPG_SYMBOLS)
-   
-   kaleidoscope::papageno::Papageno::setTimeoutMillis(200);
-   
-//    ppg_logging_set_enabled(true);
-
-   PPG_KLS_KEYPOS_CLUSTER_ACTION_KEYCODE(
-      0, // Layer
-      (Key_Enter),
-      NG_TEST_KEY_1,
-      NG_TEST_KEY_2
-   );
-
-   PPG_KLS_COMPILE
-}
-#endif
-
 /*
 glockenspiel_begin
 
 default: event_timeout = $200$
+   
+input: LeftThumb1 <KEYPOS> = $3, 7$
+input: LeftThumb2 <KEYPOS> = $2, 7$
+input: LeftThumb3 <KEYPOS> = $1, 7$
+input: LeftThumb4 <KEYPOS> = $0, 7$
 
-action: Key_Enter <KEYCODE>
+input: RightThumb1 <KEYPOS> = $3, 8$
+input: RightThumb2 <KEYPOS> = $2, 8$
+input: RightThumb3 <KEYPOS> = $1, 8$
+input: RightThumb4 <KEYPOS> = $0, 8$
 
-input: TestKey1 <KEYPOS> = $3, 7$
-input: TestKey2 <KEYPOS> = $3, 8$
+input: Special1 <COMPLEX_KEYCODE> = $0, 13$
+input: Special2 <COMPLEX_KEYCODE> = $0, 15$
+input: Special3 <COMPLEX_KEYCODE> = $0, 0$
+input: Special4 <COMPLEX_KEYCODE> = $0, 1$
+input: Special5 <COMPLEX_KEYCODE> = $0, 2$
+input: Special6 <COMPLEX_KEYCODE> = $0, 3$
 
-{TestKey1, TestKey2} : Key_Enter
+% Key alias for keys on Norman layout
+%
+alias: NG_Key_E Key_D
+alias: NG_Key_O Key_L
+alias: NG_Key_A Key_A
+alias: NG_Key_S Key_S
+
+action: aShiftTab <COMPLEX_KEYCODE> = $LSHIFT(Key_Tab)$
+action: leftCTRL_R <COMPLEX_KEYCODE> = $LCTRL(Key_R)$
+action: shiftCtrlC <COMPLEX_KEYCODE> = $LCTRL(LSHFT(KeyC))$
+
+action: aLeftThumb1Tab <USER_FUNCTION> = $leftThumb1Tab, NULL$
+action: repeatLastCommand <USER_FUNCTION> = $repeatLastCommandCB, NULL$
+action: ordinarySearch <USER_FUNCTION> = $ordinarySearchCB, NULL$
+action: fileSearch <USER_FUNCTION> = $fileSearchCB, NULL$
+action: reset <USER_FUNCTION> = $resetCB, NULL$
+
+action: umlautA <USER_FUNCTION> = $umlautCB, (void*)Key_A.raw()$
+action: umlautO <USER_FUNCTION> = $umlautCB, (void*)Key_O.raw()$
+action: umlautU <USER_FUNCTION> = $umlautCB, (void*)Key_U.raw()$
+action: umlautS <COMPLEX_KEYCODE> = $RALT(Key_S)$
+
+% A cluster that causes enter (key order arbitrary)
+%
+{LeftThumb1, RightThumb1} : Key_Enter
+
+% Double tap on the left inner thumb key triggers a user function
+%
+|LeftThumb1|*2 : aLeftThumb1Tab
+
+% A note line with two thumb keys triggers tab
+%
+|LeftThumb1| -> |RightThumb2| : Key_Tab
+
+% Double tap on right inner thumb key
+%
+|RightThumb1|*2 : aShiftTab
+
+% Note line 
+%
+|RightThumb1| -> |LeftThumb2| : Key_Del
+
+% Tap dance
+%
+|Special1|*2 : repeatLastCommand
+
+|Special3|*5 : ordinarySearch@2, fileSearch@3, reset@5
+
+|Special4|*2 : leftCTRL_R
+
+|Special5|*2 : Key_F3
+
+|Special6|*2 : shiftCtrlC
+
+% Assign german umlauts as tripple taps to
+% suitable and non-colliding (digraphs!) keys of the home row
+%
+% Occurence probabilities of umlauts in written german:
+%
+% a-umlaut  0,54%
+% o-umlaut  0,30%
+% u-umlaut  0,65%
+% s-umlaut  0,37%
+%
+% These are used together with the EURKEY keyboard layout
+% that is available on Linux and Windows
+%
+% TODO: Disable the following on layers higher than 0
+%
+|NG_Key_E|*3 : umlaut_A
+|NG_Key_O|*3 : umlaut_O
+|NG_Key_I|*3 : umlaut_U
+|NG_Key_S|*3 : umlaut_S
+
+
 
 glockenspiel_end
 */
