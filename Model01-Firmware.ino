@@ -22,6 +22,7 @@
 #include "Kaleidoscope.h"
 
 // Support for papageno features
+#define KALEIDOSCOPE_PAPAGENO_POSTPONE_INITIALIZATION
 #include "Kaleidoscope-Papageno.h"
 
 // Support for keys that move the mouse
@@ -414,46 +415,46 @@ void loop() {
 /*
 glockenspiel_begin
 
-default: event_timeout = $200$
+default: event_timeout =  $ 200 $ 
    
-input: LeftThumb1 <KEYPOS> = $3, 7$
-input: LeftThumb2 <KEYPOS> = $2, 7$
-input: LeftThumb3 <KEYPOS> = $1, 7$
-input: LeftThumb4 <KEYPOS> = $0, 7$
+input: LeftThumb1 <KEYPOS> =  $ 3, 7 $ 
+input: LeftThumb2 <KEYPOS> =  $ 2, 7 $ 
+input: LeftThumb3 <KEYPOS> =  $ 1, 7 $ 
+input: LeftThumb4 <KEYPOS> =  $ 0, 7 $ 
 
-input: RightThumb1 <KEYPOS> = $3, 8$
-input: RightThumb2 <KEYPOS> = $2, 8$
-input: RightThumb3 <KEYPOS> = $1, 8$
-input: RightThumb4 <KEYPOS> = $0, 8$
+input: RightThumb1 <KEYPOS> =  $ 3, 8 $ 
+input: RightThumb2 <KEYPOS> =  $ 2, 8 $ 
+input: RightThumb3 <KEYPOS> =  $ 1, 8 $ 
+input: RightThumb4 <KEYPOS> =  $ 0, 8 $ 
 
-input: Special1 <COMPLEX_KEYCODE> = $0, 13$
-input: Special2 <COMPLEX_KEYCODE> = $0, 15$
-input: Special3 <COMPLEX_KEYCODE> = $0, 0$
-input: Special4 <COMPLEX_KEYCODE> = $0, 1$
-input: Special5 <COMPLEX_KEYCODE> = $0, 2$
-input: Special6 <COMPLEX_KEYCODE> = $0, 3$
+input: Special1 <KEYPOS> =  $ 0, 13 $ 
+input: Special2 <KEYPOS> =  $ 0, 15 $ 
+input: Special3 <KEYPOS> =  $ 0, 0 $ 
+input: Special4 <KEYPOS> =  $ 0, 1 $ 
+input: Special5 <KEYPOS> =  $ 0, 2 $ 
+input: Special6 <KEYPOS> =  $ 0, 3 $ 
 
 % Key alias for keys on Norman layout
 %
-alias: NG_Key_E Key_D
-alias: NG_Key_O Key_L
-alias: NG_Key_A Key_A
-alias: NG_Key_S Key_S
+alias: NG_Key_E = Key_D
+alias: NG_Key_O = Key_L
+alias: NG_Key_I = Key_K
+alias: NG_Key_S = Key_S
 
-action: aShiftTab <COMPLEX_KEYCODE> = $LSHIFT(Key_Tab)$
-action: leftCTRL_R <COMPLEX_KEYCODE> = $LCTRL(Key_R)$
-action: shiftCtrlC <COMPLEX_KEYCODE> = $LCTRL(LSHFT(KeyC))$
+action: aShiftTab <COMPLEX_KEYCODE> =  $ LSHIFT(Key_Tab) $ 
+action: leftCTRL_R <COMPLEX_KEYCODE> =  $ LCTRL(Key_R) $ 
+action: shiftCtrlC <COMPLEX_KEYCODE> =  $ LCTRL(LSHIFT(Key_C)) $ 
 
-action: aLeftThumb1Tab <USER_FUNCTION> = $leftThumb1Tab, NULL$
-action: repeatLastCommand <USER_FUNCTION> = $repeatLastCommandCB, NULL$
-action: ordinarySearch <USER_FUNCTION> = $ordinarySearchCB, NULL$
-action: fileSearch <USER_FUNCTION> = $fileSearchCB, NULL$
-action: reset <USER_FUNCTION> = $resetCB, NULL$
+action: aLeftThumb1Tab <USER_FUNCTION> =  $ leftThumb1Tab, NULL $ 
+action: repeatLastCommand <USER_FUNCTION> =  $ repeatLastCommandCB, NULL $ 
+action: ordinarySearch <USER_FUNCTION> =  $ ordinarySearchCB, NULL $ 
+action: fileSearch <USER_FUNCTION> =  $ fileSearchCB, NULL $ 
+action: reset <USER_FUNCTION> =  $ resetCB, NULL $ 
 
-action: umlautA <USER_FUNCTION> = $umlautCB, (void*)Key_A.raw()$
-action: umlautO <USER_FUNCTION> = $umlautCB, (void*)Key_O.raw()$
-action: umlautU <USER_FUNCTION> = $umlautCB, (void*)Key_U.raw()$
-action: umlautS <COMPLEX_KEYCODE> = $RALT(Key_S)$
+action: umlaut_A <USER_FUNCTION> =  $ umlautCB, (void*)Key_A.raw $ 
+action: umlaut_O <USER_FUNCTION> =  $ umlautCB, (void*)Key_O.raw $ 
+action: umlaut_U <USER_FUNCTION> =  $ umlautCB, (void*)Key_U.raw $ 
+action: umlaut_S <COMPLEX_KEYCODE> =  $ RALT(Key_S) $ 
 
 % A cluster that causes enter (key order arbitrary)
 %
@@ -473,7 +474,7 @@ action: umlautS <COMPLEX_KEYCODE> = $RALT(Key_S)$
 
 % Note line 
 %
-|RightThumb1| -> |LeftThumb2| : Key_Del
+|RightThumb1| -> |LeftThumb2| : Key_Delete
 
 % Tap dance
 %
@@ -507,12 +508,100 @@ action: umlautS <COMPLEX_KEYCODE> = $RALT(Key_S)$
 |NG_Key_I|*3 : umlaut_U
 |NG_Key_S|*3 : umlaut_S
 
-
-
 glockenspiel_end
 */
+
+// User callback the emulates double tab for
+// shell auto completion
+//
+void leftThumb1Tab(bool activation, void *user_data)
+{
+   if(!activation) { return; }
+   
+//    register_code (KC_TAB);
+//    unregister_code (KC_TAB);
+//    register_code (KC_TAB);
+//    unregister_code (KC_TAB);
+}
+
+// User callback that repeats the most recent shell
+// command
+//
+void repeatLastCommandCB(bool activation, void *user_data)
+{
+   if(!activation) { return; }
+   
+//    register_code (KC_UP);
+//    unregister_code (KC_UP);
+//    register_code (KC_ENTER);
+//    unregister_code (KC_ENTER);
+}
+
+// Issues a search command that can be used with
+// any editor that is configured in a way that F1
+// opens the search entry with the string that the cursor
+// currently rests on.
+//
+void ordinarySearchCB(bool activation, void *user_data)
+{
+   if(!activation) { return; }
+   
+//    register_code16 (LCTL(KC_F));
+//    unregister_code16 (LCTL(KC_F));
+//    register_code (KC_ENTER);
+//    unregister_code (KC_ENTER);
+}
+
+// Similar the search callback above, but for a search
+// in multiple files. This works with editors
+// that have been customized to feature Shift+F1
+// as command to open the search-in-files menu.
+//
+void fileSearchCB(bool activation, void *user_data)
+{
+   if(!activation) { return; }
+   
+//    register_code16 (S(KC_F1));
+//    send_keyboard_report();
+//    unregister_code16 (S(KC_F1));
+//    send_keyboard_report();
+//    register_code (KC_ENTER);
+//    unregister_code (KC_ENTER);
+}
+
+void umlautCB(bool activation, void *user_data)
+{
+//    uint16_t keycode = (uint16_t)user_data;
+// 
+//    // TODO: Find out why one shot mods do timeout
+//    //       so fast
+//    
+//    if(activation) {
+//       
+//       register_code16(KC_RALT);
+//       register_code(keycode);
+//    }
+//    else {
+//       unregister_code(keycode);
+//       unregister_code16(KC_RALT);
+//    }
+}
+
+// Resets the keyboard
+//
+void resetCB(bool activation, void *user_data)
+{
+   if(!activation) { return; }
+   
+//    reset_keyboard();
+   // TODO
+}
 
 // TODO: Add a mode of operation where Papageno only tracks events
 //       but passes them on instead of swallowing them.
 
-// #include "Kaleidoscope-Papageno-GLS.cpp"
+// TODO: Enable Glockenspiel optimization flags by default.
+
+extern "C" {
+#include "Kaleidoscope-Papageno-Sketch.hpp"
+}
