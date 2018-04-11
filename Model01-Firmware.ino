@@ -21,6 +21,12 @@
 // The Kaleidoscope core
 #include "Kaleidoscope.h"
 
+#include <kaleidoscope/hid.h>
+/*
+extern "C" {
+#include "ppg_debug.h"
+}*/
+
 // Support for papageno features
 #define KALEIDOSCOPE_PAPAGENO_POSTPONE_INITIALIZATION
 #include "Kaleidoscope-Papageno.h"
@@ -33,6 +39,8 @@
 
 // Support for controlling the keyboard's LEDs
 #include "Kaleidoscope-LEDControl.h"
+
+#include "Kaleidoscope-LED-ActiveModColor.h"
 
 // Support for "Numpad" mode, which is mostly just the Numpad specific LED mode
 // #include "Kaleidoscope-NumPad.h"
@@ -47,7 +55,7 @@
 #include "Kaleidoscope-LEDEffect-BootGreeting.h"
 
 // Support for LED modes that set all LEDs to a single color
-//#include "Kaleidoscope-LEDEffect-SolidColor.h"
+#include "Kaleidoscope-LEDEffect-SolidColor.h"
 
 // Support for an LED mode that makes all the LEDs 'breathe'
 //#include "Kaleidoscope-LEDEffect-Breathe.h"
@@ -142,18 +150,18 @@ enum { NORMAN, M1, M2, M3 }; // layers
 const Key keymaps[][ROWS][COLS] PROGMEM = {
 
   [NORMAN] = KEYMAP_STACKED
-  (LCTRL(Key_X),  LCTRL(Key_C),   LCTRL(Key_V), LCTRL(Key_F), ___,      ___,      ___,
+  (LCTRL(Key_X),  LCTRL(Key_C),   LCTRL(Key_V), LCTRL(Key_F), ___,      ___,      Key_LEDEffectNext,
    OSL(M3),      Key_Q,         Key_W,       Key_D,       Key_F,    Key_K,    ___,
    OSL(M2),      Key_A,         Key_S,       Key_E,       Key_T,    Key_G, // home row
    OSM(LeftControl),Key_Z,         Key_X,       Key_C,       Key_V,    Key_B,    ___,
-   ___,          ___,           Key_Backspace, OSM(LeftShift),
+   ___,          Key_Backspace, OSM(LeftShift),___,
    OSL(M1),
 
    ___,          ___,           ___,         OSM(LeftAlt), ___,     LCTRL(Key_S), Key_Escape,
    ___,          Key_J,         Key_U,       Key_R,       Key_L,    Key_Semicolon, OSL(M3),
                  Key_Y,         Key_N,       Key_I,       Key_O,    Key_H,    OSL(M2),
    ___,          Key_P,         Key_M,       Key_Comma,   Key_Period,Key_Slash,OSM(LeftControl),
-   OSL(M1),      Key_Space,     ___,         ___,
+   ___,          OSL(M1),      Key_Space,    ___,
    OSL(M1)),
    
    [M1] = KEYMAP_STACKED
@@ -270,7 +278,7 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
 // Keyboardio Model 01.
 
 
-//static kaleidoscope::LEDSolidColor solidRed(160, 0, 0);
+static kaleidoscope::LEDSolidColor solidRed(160, 0, 0);
 //static kaleidoscope::LEDSolidColor solidOrange(140, 70, 0);
 //static kaleidoscope::LEDSolidColor solidYellow(130, 100, 0);
 //static kaleidoscope::LEDSolidColor solidGreen(0, 160, 0);
@@ -311,20 +319,40 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
   */
 
 void setup() {
+   
+   // For usb serial debugging
+   //
+   Serial.begin(9600);
+   Serial.println("setup");
+   
   // First, call Kaleidoscope's internal setup function
   Kaleidoscope.setup();
 
+    
+// #if 0
   // Next, tell Kaleidoscope which plugins you want to use.
   // The order can be important. For example, LED effects are
   // added in the order they're listed here.
   Kaleidoscope.use(
-
-    &Papageno 
-   
-#if 0
+    
+    &Papageno,
+ 
+    &OneShot,
+    
+    // LEDControl provides support for other LED modes
+    &LEDControl,
+    
+    &ActiveModColorEffect,
+        
+    // We start with the LED effect that turns off all the LEDs.
+    &LEDOff,
+    
+    &solidRed,
+    
     // The boot greeting effect pulses the LED button for 10 seconds after the keyboard is first connected
-    &BootGreetingEffect,
+    &BootGreetingEffect
 
+#if 0
     // The hardware test mode, which can be invoked by tapping Prog, LED and the left Fn button at the same time.
     //&TestMode,
 
@@ -373,7 +401,9 @@ void setup() {
     // and allows us to turn LEDs off when it goes to sleep.
 //     &HostPowerManagement
 #endif
-  );
+
+  ); 
+// #endif
 
   // While we hope to improve this in the future, the NumPad plugin
   // needs to be explicitly told which keymap layer is your numpad layer
@@ -399,6 +429,16 @@ void setup() {
   // This avoids over-taxing devices that don't have a lot of power to share
   // with USB devices
   //LEDOff.activate();
+  
+  
+  
+  
+    // Only for debugging of Papageno features using Leidokos-Python
+    //
+//     ppg_logging_set_enabled(true);
+    
+    
+    
 }
 
 /** loop is the second of the standard Arduino sketch functions.
@@ -410,17 +450,20 @@ void setup() {
 
 void loop() {
   Kaleidoscope.loop();
+//    Serial.println("loop");
 }
 
 /*
 glockenspiel_begin
 
 default: event_timeout =  $ 200 $ 
-   
-input: LeftThumb1 <KEYPOS> =  $ 3, 7 $ 
-input: LeftThumb2 <KEYPOS> =  $ 2, 7 $ 
-input: LeftThumb3 <KEYPOS> =  $ 1, 7 $ 
-input: LeftThumb4 <KEYPOS> =  $ 0, 7 $ 
+
+% Thumb keys are numbered left to right
+%
+input: LeftThumb1 <KEYPOS> =  $ 0, 7 $ 
+input: LeftThumb2 <KEYPOS> =  $ 1, 7 $ 
+input: LeftThumb3 <KEYPOS> =  $ 2, 7 $ 
+input: LeftThumb4 <KEYPOS> =  $ 3, 7 $ 
 
 input: RightThumb1 <KEYPOS> =  $ 3, 8 $ 
 input: RightThumb2 <KEYPOS> =  $ 2, 8 $ 
@@ -429,27 +472,29 @@ input: RightThumb4 <KEYPOS> =  $ 0, 8 $
 
 input: Special1 <KEYPOS> =  $ 0, 13 $ 
 input: Special2 <KEYPOS> =  $ 0, 15 $ 
-input: Special3 <KEYPOS> =  $ 0, 0 $ 
-input: Special4 <KEYPOS> =  $ 0, 1 $ 
-input: Special5 <KEYPOS> =  $ 0, 2 $ 
-input: Special6 <KEYPOS> =  $ 0, 3 $ 
+input: Special3 <KEYPOS> =  $ 0,  0 $ 
+input: Special4 <KEYPOS> =  $ 0,  1 $ 
+input: Special5 <KEYPOS> =  $ 0,  2 $ 
+input: Special6 <KEYPOS> =  $ 0,  3 $ 
 
 % Key alias for keys on Norman layout
 %
-alias: NG_Key_E = Key_D
-alias: NG_Key_O = Key_L
-alias: NG_Key_I = Key_K
-alias: NG_Key_S = Key_S
+input: NG_Key_E <KEYPOS> = $ 2,  3 $
+input: NG_Key_O <KEYPOS> = $ 2, 13 $
+input: NG_Key_I <KEYPOS> = $ 2, 12 $
+input: NG_Key_S <KEYPOS> = $ 2,  2 $
 
 action: aShiftTab <COMPLEX_KEYCODE> =  $ LSHIFT(Key_Tab) $ 
-action: leftCTRL_R <COMPLEX_KEYCODE> =  $ LCTRL(Key_R) $ 
+
+% Note: In Norman layout the QWERTY-key R is actually F. Thus, 
+%       the next command produces ctrl-F
+action: leftCTRL_F <COMPLEX_KEYCODE> =  $ LCTRL(Key_F) $ 
 action: shiftCtrlC <COMPLEX_KEYCODE> =  $ LCTRL(LSHIFT(Key_C)) $ 
 
-action: aLeftThumb1Tab <USER_FUNCTION> =  $ leftThumb1Tab, NULL $ 
+action: doubleTab <USER_FUNCTION> =  $ doubleTabCB, NULL $ 
 action: repeatLastCommand <USER_FUNCTION> =  $ repeatLastCommandCB, NULL $ 
 action: ordinarySearch <USER_FUNCTION> =  $ ordinarySearchCB, NULL $ 
 action: fileSearch <USER_FUNCTION> =  $ fileSearchCB, NULL $ 
-action: reset <USER_FUNCTION> =  $ resetCB, NULL $ 
 
 action: umlaut_A <USER_FUNCTION> =  $ umlautCB, (void*)Key_A.raw $ 
 action: umlaut_O <USER_FUNCTION> =  $ umlautCB, (void*)Key_O.raw $ 
@@ -458,31 +503,31 @@ action: umlaut_S <COMPLEX_KEYCODE> =  $ RALT(Key_S) $
 
 % A cluster that causes enter (key order arbitrary)
 %
-{LeftThumb1, RightThumb1} : Key_Enter
+{LeftThumb3, RightThumb2} : Key_Enter
 
 % Double tap on the left inner thumb key triggers a user function
 %
-|LeftThumb1|*2 : aLeftThumb1Tab
+|LeftThumb3|*2 : doubleTab
 
 % A note line with two thumb keys triggers tab
 %
-|LeftThumb1| -> |RightThumb2| : Key_Tab
+|LeftThumb3| -> |RightThumb3| : Key_Tab
 
 % Double tap on right inner thumb key
 %
-|RightThumb1|*2 : aShiftTab
+|RightThumb2|*2 : aShiftTab
 
 % Note line 
 %
-|RightThumb1| -> |LeftThumb2| : Key_Delete
+|RightThumb2| -> |LeftThumb2| : Key_Delete
 
 % Tap dance
 %
 |Special1|*2 : repeatLastCommand
 
-|Special3|*5 : ordinarySearch@2, fileSearch@3, reset@5
+|Special3|*3 : ordinarySearch@2, fileSearch@3
 
-|Special4|*2 : leftCTRL_R
+|Special4|*2 : leftCTRL_F
 
 |Special5|*2 : Key_F3
 
@@ -511,17 +556,33 @@ action: umlaut_S <COMPLEX_KEYCODE> =  $ RALT(Key_S) $
 glockenspiel_end
 */
 
+inline
+void pressKey(const Key &k) {
+   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, IS_PRESSED | INJECTED);
+   kaleidoscope::hid::sendKeyboardReport();
+}
+
+inline
+void releaseKey(const Key &k) {
+   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, WAS_PRESSED | INJECTED);
+   kaleidoscope::hid::sendKeyboardReport();
+}
+
+inline 
+void tapKey(const Key &k) {
+   pressKey(k);
+   releaseKey(k);
+}
+
 // User callback the emulates double tab for
 // shell auto completion
 //
-void leftThumb1Tab(bool activation, void *user_data)
+void doubleTabCB(bool activation, void *user_data)
 {
    if(!activation) { return; }
    
-//    register_code (KC_TAB);
-//    unregister_code (KC_TAB);
-//    register_code (KC_TAB);
-//    unregister_code (KC_TAB);
+   tapKey(Key_Tab);
+   tapKey(Key_Tab);
 }
 
 // User callback that repeats the most recent shell
@@ -531,10 +592,8 @@ void repeatLastCommandCB(bool activation, void *user_data)
 {
    if(!activation) { return; }
    
-//    register_code (KC_UP);
-//    unregister_code (KC_UP);
-//    register_code (KC_ENTER);
-//    unregister_code (KC_ENTER);
+   tapKey(Key_UpArrow);
+   tapKey(Key_Enter);
 }
 
 // Issues a search command that can be used with
@@ -546,10 +605,8 @@ void ordinarySearchCB(bool activation, void *user_data)
 {
    if(!activation) { return; }
    
-//    register_code16 (LCTL(KC_F));
-//    unregister_code16 (LCTL(KC_F));
-//    register_code (KC_ENTER);
-//    unregister_code (KC_ENTER);
+   tapKey(LCTRL(Key_F));
+   tapKey(Key_Enter);
 }
 
 // Similar the search callback above, but for a search
@@ -561,40 +618,21 @@ void fileSearchCB(bool activation, void *user_data)
 {
    if(!activation) { return; }
    
-//    register_code16 (S(KC_F1));
-//    send_keyboard_report();
-//    unregister_code16 (S(KC_F1));
-//    send_keyboard_report();
-//    register_code (KC_ENTER);
-//    unregister_code (KC_ENTER);
+   tapKey(LSHIFT(Key_F1));
+   tapKey(Key_Enter);
 }
 
 void umlautCB(bool activation, void *user_data)
 {
-//    uint16_t keycode = (uint16_t)user_data;
-// 
-//    // TODO: Find out why one shot mods do timeout
-//    //       so fast
-//    
-//    if(activation) {
-//       
-//       register_code16(KC_RALT);
-//       register_code(keycode);
-//    }
-//    else {
-//       unregister_code(keycode);
-//       unregister_code16(KC_RALT);
-//    }
-}
-
-// Resets the keyboard
-//
-void resetCB(bool activation, void *user_data)
-{
-   if(!activation) { return; }
+   Key k;
+   k.raw = (uint16_t)user_data;
    
-//    reset_keyboard();
-   // TODO
+   if(activation) {
+      pressKey(RALT(k));
+   }
+   else {
+      releaseKey(RALT(k));
+   }
 }
 
 // TODO: Add a mode of operation where Papageno only tracks events
