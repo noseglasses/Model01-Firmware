@@ -22,6 +22,7 @@
 #include "Kaleidoscope.h"
 
 #include <kaleidoscope/hid.h>
+
 /*
 extern "C" {
 #include "ppg_debug.h"
@@ -150,18 +151,18 @@ enum { NORMAN, M1, M2, M3 }; // layers
 const Key keymaps[][ROWS][COLS] PROGMEM = {
 
   [NORMAN] = KEYMAP_STACKED
-  (LCTRL(Key_X),  LCTRL(Key_C),   LCTRL(Key_V), LCTRL(Key_F), ___,      ___,      Key_LEDEffectNext,
-   OSL(M3),      Key_Q,         Key_W,       Key_D,       Key_F,    Key_K,    ___,
+  (___,  ___,   ___, ___, ___,      LCTRL(Key_X),      LCTRL(Key_X),
+   OSL(M3),      Key_Q,         Key_W,       Key_D,       Key_F,    Key_K,    LCTRL(Key_C),
    OSL(M2),      Key_A,         Key_S,       Key_E,       Key_T,    Key_G, // home row
-   OSM(LeftControl),Key_Z,         Key_X,       Key_C,       Key_V,    Key_B,    ___,
-   ___,          Key_Backspace, OSM(LeftShift),___,
+   OSM(LeftControl),Key_Z,         Key_X,       Key_C,       Key_V,    Key_B,    LCTRL(Key_V),
+   LCTRL(Key_F),          Key_Backspace, OSM(LeftShift),OSM(LeftAlt),
    OSL(M1),
 
-   ___,          ___,           ___,         OSM(LeftAlt), ___,     LCTRL(Key_S), Key_Escape,
-   ___,          Key_J,         Key_U,       Key_R,       Key_L,    Key_Semicolon, OSL(M3),
+   ___,          ___,           ___,         ___, ___,     ___, ___,
+   ___,          Key_J,         Key_U,       Key_R,       Key_L,    Key_Semicolon, Key_Escape,
                  Key_Y,         Key_N,       Key_I,       Key_O,    Key_H,    OSL(M2),
-   ___,          Key_P,         Key_M,       Key_Comma,   Key_Period,Key_Slash,OSM(LeftControl),
-   ___,          OSL(M1),      Key_Space,    ___,
+   LCTRL(Key_S),          Key_P,         Key_M,       Key_Comma,   Key_Period,Key_Slash,OSM(LeftControl),
+   OSM(LeftAlt),          OSL(M1),      Key_Space,    ___,
    OSL(M1)),
    
    [M1] = KEYMAP_STACKED
@@ -174,7 +175,7 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
     
     ___,         ___,           ___,         ___,         ___,      ___,      ___,
     ___,         LSHIFT(Key_1), LSHIFT(Key_Comma),  LSHIFT(Key_Period),    Key_Equals, LSHIFT(Key_7), ___,
-                 LSHIFT(Key_Slash), LSHIFT(Key_9), LSHIFT(Key_9), Key_Minus, Key_Period, ___,
+                 LSHIFT(Key_Slash), LSHIFT(Key_9), LSHIFT(Key_0), Key_Minus, LSHIFT(Key_Semicolon), ___,
     ___,         LSHIFT(Key_Equals),      LSHIFT(Key_5), LSHIFT(Key_Quote), Key_Quote, Key_Semicolon, ___,
     ___,         ___,           ___,         ___,
     ___),
@@ -322,8 +323,8 @@ void setup() {
    
    // For usb serial debugging
    //
-   Serial.begin(9600);
-   Serial.println("setup");
+//    Serial.begin(9600);
+//    Serial.println("setup");
    
   // First, call Kaleidoscope's internal setup function
   Kaleidoscope.setup();
@@ -449,33 +450,53 @@ void setup() {
   */
 
 void loop() {
-  Kaleidoscope.loop();
+  Papageno.loop();
+//   Kaleidoscope.loop();
 //    Serial.println("loop");
+  
+//   static uint8_t mv = 0;
+//   
+//   switch(mv % 2) {
+//      case 0:
+//         kaleidoscope::hid::moveAbsoluteMouseTo(1010, 1000, 0);
+//         break;
+//      case 1:
+//         kaleidoscope::hid::moveAbsoluteMouseTo(1000, 1010, 0);
+//         break;
+// //      case 2:
+// //         kaleidoscope::hid::moveAbsoluteMouseTo(1000, 0, 0);
+// //         break;
+//   }
+//   ++mv;
 }
 
 /*
 glockenspiel_begin
 
 default: event_timeout =  $ 200 $ 
+   
+%###############################################################################
+% Inputs
+%###############################################################################
 
 % Thumb keys are numbered left to right
 %
-input: LeftThumb1 <KEYPOS> =  $ 0, 7 $ 
-input: LeftThumb2 <KEYPOS> =  $ 1, 7 $ 
-input: LeftThumb3 <KEYPOS> =  $ 2, 7 $ 
-input: LeftThumb4 <KEYPOS> =  $ 3, 7 $ 
+input: LeftThumb1 <KEYPOS> =  $ 0,  7 $ 
+input: LeftThumb2 <KEYPOS> =  $ 1,  7 $ 
+input: LeftThumb3 <KEYPOS> =  $ 2,  7 $ 
+input: LeftThumb4 <KEYPOS> =  $ 3,  7 $ 
 
-input: RightThumb1 <KEYPOS> =  $ 3, 8 $ 
-input: RightThumb2 <KEYPOS> =  $ 2, 8 $ 
-input: RightThumb3 <KEYPOS> =  $ 1, 8 $ 
-input: RightThumb4 <KEYPOS> =  $ 0, 8 $ 
+input: RightThumb1 <KEYPOS> =  $ 3,  8 $ 
+input: RightThumb2 <KEYPOS> =  $ 2,  8 $ 
+input: RightThumb3 <KEYPOS> =  $ 1,  8 $ 
+input: RightThumb4 <KEYPOS> =  $ 0,  8 $ 
 
-input: Special1 <KEYPOS> =  $ 0, 13 $ 
-input: Special2 <KEYPOS> =  $ 0, 15 $ 
-input: Special3 <KEYPOS> =  $ 0,  0 $ 
-input: Special4 <KEYPOS> =  $ 0,  1 $ 
-input: Special5 <KEYPOS> =  $ 0,  2 $ 
-input: Special6 <KEYPOS> =  $ 0,  3 $ 
+input: Special1 <KEYPOS> =  $ 2,  9 $ 
+input: Special2 <KEYPOS> =  $ 0,  9 $ 
+input: Special3 <KEYPOS> =  $ 0,  6 $ 
+input: Special4 <KEYPOS> =  $ 1,  6 $ 
+input: Special5 <KEYPOS> =  $ 2,  6 $ 
+input: Special6 <KEYPOS> =  $ 1,  9 $ 
 
 % Key alias for keys on Norman layout
 %
@@ -483,6 +504,12 @@ input: NG_Key_E <KEYPOS> = $ 2,  3 $
 input: NG_Key_O <KEYPOS> = $ 2, 13 $
 input: NG_Key_I <KEYPOS> = $ 2, 12 $
 input: NG_Key_S <KEYPOS> = $ 2,  2 $
+
+input: NG_Prog_Key <KEYPOS> = $ 0,  0 $
+
+%###############################################################################
+% Actions
+%###############################################################################
 
 action: aShiftTab <COMPLEX_KEYCODE> =  $ LSHIFT(Key_Tab) $ 
 
@@ -500,6 +527,14 @@ action: umlaut_A <USER_FUNCTION> =  $ umlautCB, (void*)Key_A.raw $
 action: umlaut_O <USER_FUNCTION> =  $ umlautCB, (void*)Key_O.raw $ 
 action: umlaut_U <USER_FUNCTION> =  $ umlautCB, (void*)Key_U.raw $ 
 action: umlaut_S <COMPLEX_KEYCODE> =  $ RALT(Key_S) $ 
+
+action: toggleLEDEffect <COMPLEX_KEYCODE> =  $ Key_LEDEffectNext $ 
+
+action: reboot <USER_FUNCTION> =  $ rebootCB, NULL $ 
+
+%###############################################################################
+% Patterns
+%###############################################################################
 
 % A cluster that causes enter (key order arbitrary)
 %
@@ -533,6 +568,8 @@ action: umlaut_S <COMPLEX_KEYCODE> =  $ RALT(Key_S) $
 
 |Special6|*2 : shiftCtrlC
 
+|NG_Prog_Key|*5 : toggleLEDEffect@2, reboot@5
+
 % Assign german umlauts as tripple taps to
 % suitable and non-colliding (digraphs!) keys of the home row
 %
@@ -558,13 +595,13 @@ glockenspiel_end
 
 inline
 void pressKey(const Key &k) {
-   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, IS_PRESSED/* | INJECTED*/);
+   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, IS_PRESSED);
    kaleidoscope::hid::sendKeyboardReport();
 }
 
 inline
 void releaseKey(const Key &k) {
-   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, WAS_PRESSED/* | INJECTED*/);
+   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, WAS_PRESSED);
    kaleidoscope::hid::sendKeyboardReport();
 }
 
@@ -634,15 +671,30 @@ void fileSearchCB(PPG_Count activation_flags, void *user_data)
 
 void umlautCB(PPG_Count activation_flags, void *user_data)
 {
+//    NG_CALLBACK_NO_REPEAT
+   
    Key k;
    k.raw = (uint16_t)user_data;
    
+   PPG_LOG("umlautCB\n")
+   
+   // Note, as we might be dealing with one-shot shift, we cannot
+   // inject the keys (as one-shot does not deal with injected stuff)
+   //
    if(activation_flags & PPG_Action_Activation_Flags_Active) {
-      pressKey(RALT(k));
+      handleKeyswitchEvent(RALT(k), UNKNOWN_KEYSWITCH_LOCATION, IS_PRESSED/* | INJECTED*/);
    }
-   else {
-      releaseKey(RALT(k));
+   else {    
+      PPG_LOG("releasing umlaut\n") 
+      handleKeyswitchEvent(RALT(k), UNKNOWN_KEYSWITCH_LOCATION, WAS_PRESSED/* | INJECTED*/);
    }
+}
+
+void rebootCB(PPG_Count activation_flags, void *user_data)
+{
+   #ifndef ARDUINO_VIRTUAL
+   KeyboardHardware.rebootBootloader();
+   #endif 
 }
 
 // TODO: Add a mode of operation where Papageno only tracks events
