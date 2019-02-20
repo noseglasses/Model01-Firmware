@@ -18,7 +18,7 @@
 // Support for keys that move the mouse
 // #include "Kaleidoscope-MouseKeys.h"
 
-#include <Kaleidoscope-Qukeys.h>
+#include "Kaleidoscope-Qukeys.h"
 
 // Support for macros
 #include "Kaleidoscope-Macros.h"
@@ -27,10 +27,9 @@
 #include "Kaleidoscope-LEDControl.h"
 
 #include "Kaleidoscope-LED-ActiveModColor.h"
-#include <Kaleidoscope-LED-ActiveLayerColor.h>
+#include "Kaleidoscope-LED-ActiveLayerColor.h"
 
-// Support for an "LED off mode"
-#include "LED-Off.h"
+#include "Kaleidoscope-LEDEffect-FunctionalColor.h"
 
 // #include "Kaleidoscope-OneShot.h"
 
@@ -54,16 +53,16 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
    ___,      Key_A,         Key_S,       Key_E,       Key_T,    Key_G, // home row
    ___,Key_Z,         Key_X,       Key_C,       Key_V,    Key_B,    LCTRL(Key_V),
    Key_Escape,          Key_Backspace, Key_Enter, LCTRL(Key_F),
-   RightAlt,
+   ShiftToLayer(M4),
 
    ___,          ___,           ___,         ___, ___,     ___, ___,
    ___,          Key_J,         Key_U,       Key_R,       Key_L,    Key_Semicolon, ___,
                  Key_Y,         Key_N,       Key_I,       Key_O,    Key_H,    ___,
    ___,          Key_P,         Key_M,       Key_Comma,   Key_Period,Key_Slash,___,
-   Key_Tab,          OSL(M1),      Key_Space,    ___,
-   RightAlt),
-   
-   [M1] = KEYMAP_STACKED
+   Key_Tab,          Key_Enter,      Key_Space,    ___,
+   ShiftToLayer(M4)),
+    
+       [M1] = KEYMAP_STACKED
    (___,         ___,           ___,         ___,         ___,      ___,      ___,
     ___,         LSHIFT(Key_2),        LSHIFT(Key_Minus), Key_LeftBracket, Key_RightBracket, LSHIFT(Key_6), ___,
     ___,         Key_Backslash, Key_Backtick,   LSHIFT(Key_LeftBracket), LSHIFT(Key_RightBracket), LSHIFT(Key_8),
@@ -75,9 +74,8 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
     ___,         LSHIFT(Key_1), LSHIFT(Key_Comma),  LSHIFT(Key_Period),    Key_Equals, LSHIFT(Key_7), ___,
                  LSHIFT(Key_Slash), LSHIFT(Key_9), LSHIFT(Key_0), Key_Minus, LSHIFT(Key_Semicolon), ___,
     ___,         LSHIFT(Key_Equals),      LSHIFT(Key_5), LSHIFT(Key_Quote), Key_Quote, Key_Semicolon, ___,
-    LCTRL(LSHIFT(I)),         ___,           ___,         ___,
+    LCTRL(LSHIFT(Key_I)),         ___,           ___,         ___,
     ___),
-    
     
    [M2] = KEYMAP_STACKED
    (___,         ___,           ___,         ___,         ___,      ___,      ___,
@@ -107,7 +105,7 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
                  XXX,        Key_F4,      Key_F5,      Key_F6,   Key_F11,  ___,
     ___,         XXX,        Key_F1,      Key_F2,      Key_F3,   Key_F10,  ___,   
     ___,         ___,           ___,         ___,
-    ___) 
+    ___), 
     
    [M4] = KEYMAP_STACKED
    (___,         ___,           ___,         ___,         ___,      ___,      ___,
@@ -133,22 +131,15 @@ static void versionInfoMacro(uint8_t keyState) {
   }
 }
 
-const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
-  switch (macroIndex) {
-
-  case MACRO_VERSION_INFO:
-    versionInfoMacro(keyState);
-    break;
-   }
-  return MACRO_NONE;
-}
+kaleidoscope::LEDFunctionalColor::FCPlugin funColor;
 
 KALEIDOSCOPE_INIT_PLUGINS(
    Qukeys, 
    Macros, 
-   ActiveLayerColor,
+   funColor,
+   LEDActiveLayerColorEffect,
    BootGreetingEffect,
-   ActiveModColor
+   ActiveModColorEffect
 );
 
 /** The 'setup' function is one of the two standard Arduino sketch functions.
@@ -180,17 +171,18 @@ void setup() {
       kaleidoscope::plugin::Qukey(0, 2, 4, Key_LeftShift),
 
       kaleidoscope::plugin::Qukey(0, 2, 14, Key_RightGui),
-      kaleidoscope::plugin::Qukey(0, 2, 13, Key_RightAlt),
+      kaleidoscope::plugin::Qukey(0, 2, 13, Key_LeftAlt),
       kaleidoscope::plugin::Qukey(0, 2, 12, Key_RightControl),
       kaleidoscope::plugin::Qukey(0, 2, 11, Key_RightShift),
             
-      kaleidoscope::plugin::Qukey(0, 3, 4, ShiftToLayer(1)),  
-      kaleidoscope::plugin::Qukey(0, 3, 3, ShiftToLayer(2)),  
-      kaleidoscope::plugin::Qukey(0, 3, 2, ShiftToLayer(3)),
-      kaleidoscope::plugin::Qukey(0, 3, 11, ShiftToLayer(1)),  
-      kaleidoscope::plugin::Qukey(0, 3, 12, ShiftToLayer(2)),  
-      kaleidoscope::plugin::Qukey(0, 3, 13, ShiftToLayer(3))   
+      kaleidoscope::plugin::Qukey(0, 3, 4, ShiftToLayer(M1)),  
+      kaleidoscope::plugin::Qukey(0, 3, 3, ShiftToLayer(M2)),  
+      kaleidoscope::plugin::Qukey(0, 3, 2, ShiftToLayer(M3)),
+      kaleidoscope::plugin::Qukey(0, 3, 11, ShiftToLayer(M1)),  
+      kaleidoscope::plugin::Qukey(0, 3, 12, ShiftToLayer(M2)),  
+      kaleidoscope::plugin::Qukey(0, 3, 13, ShiftToLayer(M3))   
    )
+   
    Qukeys.setTimeout(200);
    Qukeys.setReleaseDelay(20);
 
@@ -200,6 +192,10 @@ void setup() {
 // void loop() {
 //   Papageno.loop();
 // }
+
+void loop() {
+  Kaleidoscope.loop();
+}
 
 inline
 void pressKey(const Key &k) {
@@ -266,28 +262,26 @@ void ordinarySearchCB(PPG_Count activation_flags, void *user_data)
 }
 */
 
-const macro_t *macroAction(uint8_t macro_index, uint8_t key_state) {
-  
-   switch (macro_index) {
-  }
-  return MACRO_NONE;
-}
-
-
 // Similar the search callback above, but for a search
 // in multiple files. This works with editors
 // that have been customized to feature Shift+F1
 // as command to open the search-in-files menu.
 //
-const macro_t *macroAction(uint8_t macro_index, uint8_t key_state) {
+const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
   
-   switch (macro_index) {
+   switch (macroIndex) {
+      
+      case MACRO_VERSION_INFO:
+         versionInfoMacro(keyState);
+         break;
+      
       case MACRO_SEARCH_WORD_UNDER_CURSOR:
          tapKey(LCTRL(Key_LeftArrow));
-         tapKey(LCTRL(LSHIFT(Key_RightArrow));
+         tapKey(LCTRL(LSHIFT(Key_RightArrow)));
          tapKey(LCTRL(Key_F));
          tapKey(Key_Enter);
          break;
+         
       case MACRO_FILE_SEARCH:
          tapKey(LSHIFT(Key_F1));
          tapKey(Key_Enter);
