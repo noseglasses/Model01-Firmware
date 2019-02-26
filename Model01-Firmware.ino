@@ -29,9 +29,9 @@
 #include "Kaleidoscope-LED-ActiveModColor.h"
 #include "Kaleidoscope-LED-ActiveLayerColor.h"
 
-#include "Kaleidoscope-LEDEffect-FunctionalColor.h"
+//#include "Kaleidoscope-LEDEffect-FunctionalColor.h"
 
-// #include "Kaleidoscope-OneShot.h"
+#include "Kaleidoscope-OneShot.h"
 
 // Support for the "Boot greeting" effect, which pulses the 'LED' button for 10s
 // when the keyboard is connected to a computer (or that computer is powered on)
@@ -51,15 +51,15 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
   (___,  ___,   ___, ___, ___,      ___,      LCTRL(Key_X),
    ___,      Key_Q,         Key_W,       Key_D,       Key_F,    Key_K,    LCTRL(Key_C),
    ___,      Key_A,         Key_S,       Key_E,       Key_T,    Key_G, // home row
-   ___,Key_Z,         Key_X,       Key_C,       Key_V,    Key_B,    LCTRL(Key_V),
-   Key_Escape,          Key_Backspace, Key_Enter, LCTRL(Key_F),
+   ___,      Key_Z,         Key_X,       Key_C,       Key_V,    Key_B,    LCTRL(Key_V),
+   Key_Escape,          Key_Backspace, OSM(LeftShift), LCTRL(Key_F),
    ShiftToLayer(M4),
 
-   ___,          ___,           ___,         ___, ___,     ___, ___,
+   Key_LEDEffectNext,          ___,           ___,         ___, ___,     ___, ___,
    ___,          Key_J,         Key_U,       Key_R,       Key_L,    Key_Semicolon, ___,
                  Key_Y,         Key_N,       Key_I,       Key_O,    Key_H,    ___,
    ___,          Key_P,         Key_M,       Key_Comma,   Key_Period,Key_Slash,___,
-   Key_Tab,          Key_Enter,      Key_Space,    ___,
+   LCTRL(Key_S),          Key_Enter,      Key_Space,    Key_Tab,
    ShiftToLayer(M4)),
     
        [M1] = KEYMAP_STACKED
@@ -112,7 +112,7 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
     ___,         ___,           ___,         ___,         ___,      ___,      ___,
     ___,         ___,           RALT(Key_S),         RALT(Key_A),         ___,      ___,    
     ___,         ___,           ___,         ___,         ___,      ___,      ___,
-    ___,         ___,           ___,         ___,
+    XXX,         Key_Delete,           Key_Enter,         LCTRL(Key_S),
     ___,
     
     ___,         ___,           ___,         ___,         ___,      ___,      ___,
@@ -131,15 +131,22 @@ static void versionInfoMacro(uint8_t keyState) {
   }
 }
 
-kaleidoscope::LEDFunctionalColor::FCPlugin funColor;
+//kaleidoscope::LEDFunctionalColor::FCPlugin funColor;
 
 KALEIDOSCOPE_INIT_PLUGINS(
    Qukeys, 
-   Macros, 
-   funColor,
+   Macros,
+   OneShot,
+   
+   // LEDControl provides support for other LED modes
+   LEDControl,
+
+   // We start with the LED effect that turns off all the LEDs.
+   //   funColor,
    LEDActiveLayerColorEffect,
-   BootGreetingEffect,
-   ActiveModColorEffect
+   ActiveModColorEffect,
+   LEDOff,
+   BootGreetingEffect
 );
 
 /** The 'setup' function is one of the two standard Arduino sketch functions.
@@ -168,12 +175,12 @@ void setup() {
       kaleidoscope::plugin::Qukey(0, 2, 1, Key_LeftGui),
       kaleidoscope::plugin::Qukey(0, 2, 2, Key_LeftAlt),
       kaleidoscope::plugin::Qukey(0, 2, 3, Key_LeftControl),
-      kaleidoscope::plugin::Qukey(0, 2, 4, Key_LeftShift),
+//       kaleidoscope::plugin::Qukey(0, 2, 4, Key_LeftShift),
 
       kaleidoscope::plugin::Qukey(0, 2, 14, Key_RightGui),
       kaleidoscope::plugin::Qukey(0, 2, 13, Key_LeftAlt),
       kaleidoscope::plugin::Qukey(0, 2, 12, Key_RightControl),
-      kaleidoscope::plugin::Qukey(0, 2, 11, Key_RightShift),
+//       kaleidoscope::plugin::Qukey(0, 2, 11, Key_RightShift),
             
       kaleidoscope::plugin::Qukey(0, 3, 4, ShiftToLayer(M1)),  
       kaleidoscope::plugin::Qukey(0, 3, 3, ShiftToLayer(M2)),  
@@ -183,9 +190,14 @@ void setup() {
       kaleidoscope::plugin::Qukey(0, 3, 13, ShiftToLayer(M3))   
    )
    
-   Qukeys.setTimeout(200);
+   Qukeys.setTimeout(1000);
    Qukeys.setReleaseDelay(20);
-
+   
+   // We want to make sure that the firmware starts with LED effects off
+   // This avoids over-taxing devices that don't have a lot of power to share
+   // with USB devices
+   LEDOff.activate();
+   
    Kaleidoscope.setup();
 }
 
@@ -199,13 +211,13 @@ void loop() {
 
 inline
 void pressKey(const Key &k) {
-   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, IS_PRESSED);
+   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, IS_PRESSED | INJECTED);
    kaleidoscope::hid::sendKeyboardReport();
 }
 
 inline
 void releaseKey(const Key &k) {
-   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, WAS_PRESSED);
+   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, WAS_PRESSED | INJECTED);
    kaleidoscope::hid::sendKeyboardReport();
 }
 
@@ -277,8 +289,17 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
       
       case MACRO_SEARCH_WORD_UNDER_CURSOR:
          tapKey(LCTRL(Key_LeftArrow));
-         tapKey(LCTRL(LSHIFT(Key_RightArrow)));
-         tapKey(LCTRL(Key_F));
+         
+         pressKey(Key_LeftShift);
+         pressKey(Key_LeftControl);
+         tapKey(Key_RightArrow);
+         releaseKey(Key_LeftShift);
+         releaseKey(Key_LeftControl);
+         
+         pressKey(Key_LeftControl);
+         tapKey(Key_F);
+         releaseKey(Key_LeftControl);
+          
          tapKey(Key_Enter);
          break;
          
