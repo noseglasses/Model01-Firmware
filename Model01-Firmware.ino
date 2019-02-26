@@ -23,19 +23,20 @@
 // Support for macros
 #include "Kaleidoscope-Macros.h"
 
-// Support for controlling the keyboard's LEDs
-#include "Kaleidoscope-LEDControl.h"
-
-#include "Kaleidoscope-LED-ActiveModColor.h"
-#include "Kaleidoscope-LED-ActiveLayerColor.h"
-
-//#include "Kaleidoscope-LEDEffect-FunctionalColor.h"
-
 #include "Kaleidoscope-OneShot.h"
 
-// Support for the "Boot greeting" effect, which pulses the 'LED' button for 10s
-// when the keyboard is connected to a computer (or that computer is powered on)
-#include "Kaleidoscope-LEDEffect-BootGreeting.h"
+// // Support for controlling the keyboard's LEDs
+// #include "Kaleidoscope-LEDControl.h"
+// 
+// #include "Kaleidoscope-LED-ActiveModColor.h"
+// #include "Kaleidoscope-LED-ActiveLayerColor.h"
+// 
+// //#include "Kaleidoscope-LEDEffect-FunctionalColor.h"
+// 
+// 
+// // Support for the "Boot greeting" effect, which pulses the 'LED' button for 10s
+// // when the keyboard is connected to a computer (or that computer is powered on)
+// #include "Kaleidoscope-LEDEffect-BootGreeting.h"
 
 enum { MACRO_VERSION_INFO,
        MACRO_ANY,
@@ -55,7 +56,7 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
    Key_Escape,          Key_Backspace, OSM(LeftShift), LCTRL(Key_F),
    ShiftToLayer(M4),
 
-   Key_LEDEffectNext,          ___,           ___,         ___, ___,     ___, ___,
+   ___,          ___,           ___,         ___, ___,     ___, ___,
    ___,          Key_J,         Key_U,       Key_R,       Key_L,    Key_Semicolon, ___,
                  Key_Y,         Key_N,       Key_I,       Key_O,    Key_H,    ___,
    ___,          Key_P,         Key_M,       Key_Comma,   Key_Period,Key_Slash,___,
@@ -136,7 +137,7 @@ static void versionInfoMacro(uint8_t keyState) {
 KALEIDOSCOPE_INIT_PLUGINS(
    Qukeys, 
    Macros,
-   OneShot,
+   OneShot/*,
    
    // LEDControl provides support for other LED modes
    LEDControl,
@@ -146,7 +147,7 @@ KALEIDOSCOPE_INIT_PLUGINS(
    LEDActiveLayerColorEffect,
    ActiveModColorEffect,
    LEDOff,
-   BootGreetingEffect
+   BootGreetingEffect*/
 );
 
 /** The 'setup' function is one of the two standard Arduino sketch functions.
@@ -164,9 +165,9 @@ void setup() {
       CRGB(255, 255, 0)
    };
    
-   LEDActiveLayerColorEffect.setColormap(layerColormap);
-   
-   ActiveModColorEffect.highlight_color = CRGB(200, 200, 200);
+//    LEDActiveLayerColorEffect.setColormap(layerColormap);
+//    
+//    ActiveModColorEffect.highlight_color = CRGB(200, 200, 200);
   
    QUKEYS(
       
@@ -196,7 +197,7 @@ void setup() {
    // We want to make sure that the firmware starts with LED effects off
    // This avoids over-taxing devices that don't have a lot of power to share
    // with USB devices
-   LEDOff.activate();
+//    LEDOff.activate();
    
    Kaleidoscope.setup();
 }
