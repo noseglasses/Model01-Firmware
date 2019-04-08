@@ -74,7 +74,7 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
     ___,         LSHIFT(Key_1), LSHIFT(Key_Comma),  LSHIFT(Key_Period),    Key_Equals, LSHIFT(Key_7), ___,
                  LSHIFT(Key_Slash), LSHIFT(Key_9), LSHIFT(Key_0), Key_Minus, LSHIFT(Key_Semicolon), ___,
     ___,         LSHIFT(Key_Equals),      LSHIFT(Key_5), LSHIFT(Key_Quote), Key_Quote, Key_Semicolon, ___,
-    LCTRL(LSHIFT(Key_I)),         ___,           ___,         ___,
+    LCTRL(LSHIFT(Key_I)),         Key_Insert,           ___,         ___,
     ___),
     
    [M2] = KEYMAP_STACKED
