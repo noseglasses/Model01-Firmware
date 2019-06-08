@@ -37,6 +37,8 @@
 // when the keyboard is connected to a computer (or that computer is powered on)
 #include "Kaleidoscope-LEDEffect-BootGreeting.h"
 
+#include "Kaleidoscope-Simulator-Control.h"
+
 enum { MACRO_VERSION_INFO,
        MACRO_ANY,
        MACRO_SEARCH_WORD_UNDER_CURSOR,
@@ -45,7 +47,7 @@ enum { MACRO_VERSION_INFO,
 
 enum { NORMAN, M1, M2, M3, M4 }; // layers
 
-const Key keymaps[][ROWS][COLS] PROGMEM = {
+KEYMAPS(
 
   [NORMAN] = KEYMAP_STACKED
   (___,  ___,   ___, ___, ___,      ___,      LCTRL(Key_X),
@@ -122,7 +124,7 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
     ___,         ___,           ___,         ___,
     ___) 
 
-};
+) // KEYMAPS(
 
 static void versionInfoMacro(uint8_t keyState) {
   if (keyToggledOn(keyState)) {
@@ -134,6 +136,7 @@ static void versionInfoMacro(uint8_t keyState) {
 //kaleidoscope::LEDFunctionalColor::FCPlugin funColor;
 
 KALEIDOSCOPE_INIT_PLUGINS(
+   SimulatorControl,
    Qukeys, 
    Macros,
    OneShot,
