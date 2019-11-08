@@ -37,7 +37,7 @@
 // when the keyboard is connected to a computer (or that computer is powered on)
 #include "Kaleidoscope-LEDEffect-BootGreeting.h"
 
-#include "Kaleidoscope-Simulator-Control.h"
+//#include "Kaleidoscope-Simulator-Control.h"
 //#include "Kaleidoscope-Simulator-Recorder.h"
 
 #include "Kaleidoscope-FocusSerial.h"
@@ -47,10 +47,17 @@ enum { MACRO_VERSION_INFO,
        MACRO_ANY,
        MACRO_SEARCH_WORD_UNDER_CURSOR,
        MACRO_FILE_SEARCH,
-       OUTPUT_HID_SPECTRUM
+       OUTPUT_HID_SPECTRUM,
+       MACRO_MOUSE_NW,
+       MACRO_MOUSE_NE,
+       MACRO_MOUSE_SW,
+       MACRO_MOUSE_SE
      };
 
-enum { NORMAN, M1, M2, M3, M4, M5 }; // layers
+enum { NORMAN, Symbol, M2, M3, M4, M5 }; // layers
+
+static constexpr Key eviacamEnable{Key_ScrollLock};
+static constexpr Key eviacamCenterMouse{Key_Pause};
 
 KEYMAPS(
 
@@ -62,15 +69,15 @@ KEYMAPS(
               Key_Escape,          Key_Backspace, OSM(LeftShift), LCTRL(Key_F),
               ShiftToLayer(M4),
 
-              Key_LEDEffectNext,          ___,           ___,         ___, ___,     ___, ___,
-              ___,          Key_J,         Key_U,       Key_R,       Key_L,    Key_Semicolon, ___,
+              Key_mouseBtnM,          ___,           ___,         ___, ___,     ___, Key_LEDEffectNext,
+              Key_mouseBtnR,          Key_J,         Key_U,       Key_R,       Key_L,    Key_Semicolon, ___,
               Key_Y,         Key_N,       Key_I,       Key_O,    Key_H,    ___,
-              ___,          Key_P,         Key_M,       Key_Comma,   Key_Period, Key_Slash, ___,
-              LCTRL(Key_S),          Key_Enter,      Key_Space,    Key_Tab,
-              //ShiftToLayer(M4)),
-              ShiftToLayer(M5)),
+              Key_mouseBtnL,          Key_P,         Key_M,       Key_Comma,   Key_Period, Key_Slash, ___,
+              ShiftToLayer(M3),          Key_Enter,      Key_Space,    Key_Tab,
+              ShiftToLayer(M4)),
+              //ShiftToLayer(M5)),
 
-  [M1] = KEYMAP_STACKED
+  [Symbol] = KEYMAP_STACKED
          (___,         ___,           ___,         ___,         ___,      ___,      ___,
           ___,         LSHIFT(Key_2),        LSHIFT(Key_Minus), Key_LeftBracket, Key_RightBracket, LSHIFT(Key_6), ___,
           ___,         Key_Backslash, Key_Backtick,   LSHIFT(Key_LeftBracket), LSHIFT(Key_RightBracket), LSHIFT(Key_8),
@@ -101,13 +108,25 @@ KEYMAPS(
           ___),
 
   [M3] = KEYMAP_STACKED
-         (___,         ___,           ___,         ___,         ___,      ___,      ___,
+        /* (___,         ___,           ___,         ___,         ___,      ___,      ___,
           ___,         ___,           ___,         ___,         ___,      ___,      ___,
-          ___,         ___,           ___,         ___,         ___,      ___,
+          ___,         ___,           ___,           ___,         ___,         ___,
           ___,         ___,           ___,         ___,         ___,      ___,      ___,
           ___,         ___,           ___,         ___,
-          ___,
-
+          ___,*/
+/*          
+        (___,      ___,           ___,      ___,     ___,        ___,           ___,
+         ___,  ___,              Key_mouseUp, ___,        Key_mouseBtnR, Key_mouseWarpEnd, Key_mouseWarpNE,
+         ___, Key_mouseL,       Key_mouseDn, Key_mouseR, Key_mouseBtnL, Key_mouseWarpNW,
+         ___,  ___,  Key_Insert,  ___,        Key_mouseBtnM, Key_mouseWarpSW,  Key_mouseWarpSE,
+         ___, ___, ___, ___,
+         ___,*/
+        (___,      ___,           ___,      ___,     ___,        ___,           ___,
+         ___,  ___,              Key_mouseUp, ___,        Key_mouseBtnR, Key_mouseWarpEnd, M(MACRO_MOUSE_NE),
+         ___, Key_mouseL,       Key_mouseDn, Key_mouseScrollUp, eviacamCenterMouse, M(MACRO_MOUSE_NW),
+         ___,  ___,  Key_Insert,  Key_mouseScrollDn,        ___, M(MACRO_MOUSE_SW),  M(MACRO_MOUSE_SE),
+         ___, Key_mouseBtnM, Key_mouseBtnL, Key_mouseBtnR,
+         ___,
           ___,         ___,           ___,         ___,         ___,      ___,      ___,
           ___,         XXX,       Key_F7,      Key_F8,      Key_F9,   Key_F12,  ___,
           XXX,        Key_F4,      Key_F5,      Key_F6,   Key_F11,  ___,
@@ -127,7 +146,7 @@ KEYMAPS(
           ___,         ___,           ___,         ___,         ___,      ___,      ___,
           ___,           ___,         RALT(Key_U),         RALT(Key_O),      ___,      ___,
           ___,         ___,           ___,         ___,         ___,      ___,      ___,
-          ___,         ___,           ___,         ___,
+          eviacamCenterMouse,         Key_mouseBtnL,           Key_mouseBtnM,         Key_mouseBtnR,
           ___),
          
    [M5] =  KEYMAP_STACKED
@@ -160,7 +179,7 @@ KALEIDOSCOPE_INIT_PLUGINS(
 
   //SimulatorRecorder, // always have this first
 
-  SimulatorControl,
+  //SimulatorControl,
   Qukeys,
   Macros,
   OneShot,
@@ -213,10 +232,10 @@ void setup() {
     kaleidoscope::plugin::Qukey(0, 2, 12, Key_RightControl),
 //       kaleidoscope::plugin::Qukey(0, 2, 11, Key_RightShift),
 
-    kaleidoscope::plugin::Qukey(0, 3, 4, ShiftToLayer(M1)),
+    kaleidoscope::plugin::Qukey(0, 3, 4, ShiftToLayer(Symbol)),
     kaleidoscope::plugin::Qukey(0, 3, 3, ShiftToLayer(M2)),
     kaleidoscope::plugin::Qukey(0, 3, 2, ShiftToLayer(M3)),
-    kaleidoscope::plugin::Qukey(0, 3, 11, ShiftToLayer(M1)),
+    kaleidoscope::plugin::Qukey(0, 3, 11, ShiftToLayer(Symbol)),
     kaleidoscope::plugin::Qukey(0, 3, 12, ShiftToLayer(M2)),
     kaleidoscope::plugin::Qukey(0, 3, 13, ShiftToLayer(M3))
   )
@@ -394,6 +413,30 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
 //             Keyboard.sendReport();
 //          delay(100);
 //          }
+       case MACRO_MOUSE_NW:
+         tapKey(eviacamCenterMouse);
+         delay(50);
+         tapKey(Key_mouseWarpEnd);
+         tapKey(Key_mouseWarpNW);
+          break;
+       case MACRO_MOUSE_NE:
+         tapKey(eviacamCenterMouse);
+         delay(50);
+         tapKey(Key_mouseWarpEnd);
+         tapKey(Key_mouseWarpNE);
+          break;
+       case MACRO_MOUSE_SW:
+         tapKey(eviacamCenterMouse);
+         delay(50);
+         tapKey(Key_mouseWarpEnd);
+         tapKey(Key_mouseWarpSW);
+          break;
+       case MACRO_MOUSE_SE:
+         tapKey(eviacamCenterMouse);
+         delay(50);
+         tapKey(Key_mouseWarpEnd);
+         tapKey(Key_mouseWarpSE);
+          break;
       }
    }
      break;
