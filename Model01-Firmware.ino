@@ -45,7 +45,7 @@ enum { MACRO_VERSION_INFO,
 
 enum { NORMAN, M1, M2, M3, M4 }; // layers
 
-const Key keymaps[][ROWS][COLS] PROGMEM = {
+KEYMAPS(
 
   [NORMAN] = KEYMAP_STACKED
   (___,  ___,   ___, ___, ___,      ___,      LCTRL(Key_X),
@@ -122,7 +122,7 @@ const Key keymaps[][ROWS][COLS] PROGMEM = {
     ___,         ___,           ___,         ___,
     ___) 
 
-};
+)
 
 static void versionInfoMacro(uint8_t keyState) {
   if (keyToggledOn(keyState)) {
@@ -172,26 +172,25 @@ void setup() {
       
       // Both Hands have the modifier keys in the home-row (axis-symmetric)
       
-      kaleidoscope::plugin::Qukey(0, 2, 1, Key_LeftGui),
-      kaleidoscope::plugin::Qukey(0, 2, 2, Key_LeftAlt),
-      kaleidoscope::plugin::Qukey(0, 2, 3, Key_LeftControl),
+      kaleidoscope::plugin::Qukey(0, KeyAddr{2, 1}, Key_LeftGui),
+      kaleidoscope::plugin::Qukey(0, KeyAddr{2, 2}, Key_LeftAlt),
+      kaleidoscope::plugin::Qukey(0, KeyAddr{2, 3}, Key_LeftControl),
 //       kaleidoscope::plugin::Qukey(0, 2, 4, Key_LeftShift),
 
-      kaleidoscope::plugin::Qukey(0, 2, 14, Key_RightGui),
-      kaleidoscope::plugin::Qukey(0, 2, 13, Key_LeftAlt),
-      kaleidoscope::plugin::Qukey(0, 2, 12, Key_RightControl),
+      kaleidoscope::plugin::Qukey(0, KeyAddr{2, 14}, Key_RightGui),
+      kaleidoscope::plugin::Qukey(0, KeyAddr{2, 13}, Key_LeftAlt),
+      kaleidoscope::plugin::Qukey(0, KeyAddr{2, 12}, Key_RightControl),
 //       kaleidoscope::plugin::Qukey(0, 2, 11, Key_RightShift),
             
-      kaleidoscope::plugin::Qukey(0, 3, 4, ShiftToLayer(M1)),  
-      kaleidoscope::plugin::Qukey(0, 3, 3, ShiftToLayer(M2)),  
-      kaleidoscope::plugin::Qukey(0, 3, 2, ShiftToLayer(M3)),
-      kaleidoscope::plugin::Qukey(0, 3, 11, ShiftToLayer(M1)),  
-      kaleidoscope::plugin::Qukey(0, 3, 12, ShiftToLayer(M2)),  
-      kaleidoscope::plugin::Qukey(0, 3, 13, ShiftToLayer(M3))   
+      kaleidoscope::plugin::Qukey(0, KeyAddr{3, 4}, ShiftToLayer(M1)),  
+      kaleidoscope::plugin::Qukey(0, KeyAddr{3, 3}, ShiftToLayer(M2)),  
+      kaleidoscope::plugin::Qukey(0, KeyAddr{3, 2}, ShiftToLayer(M3)),
+      kaleidoscope::plugin::Qukey(0, KeyAddr{3, 11}, ShiftToLayer(M1)),  
+      kaleidoscope::plugin::Qukey(0, KeyAddr{3, 12}, ShiftToLayer(M2)),  
+      kaleidoscope::plugin::Qukey(0, KeyAddr{3, 13}, ShiftToLayer(M3))   
    )
    
-   Qukeys.setTimeout(1000);
-   Qukeys.setReleaseDelay(20);
+   Qukeys.setHoldTimeout(1000);
    
    // We want to make sure that the firmware starts with LED effects off
    // This avoids over-taxing devices that don't have a lot of power to share
@@ -211,14 +210,14 @@ void loop() {
 
 inline
 void pressKey(const Key &k) {
-   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, IS_PRESSED | INJECTED);
-   kaleidoscope::hid::sendKeyboardReport();
+   handleKeyswitchEvent(k, UnknownKeyswitchLocation, IS_PRESSED | INJECTED);
+   kaleidoscope::Runtime.hid().keyboard().sendReport();
 }
 
 inline
 void releaseKey(const Key &k) {
-   handleKeyswitchEvent(k, UNKNOWN_KEYSWITCH_LOCATION, WAS_PRESSED | INJECTED);
-   kaleidoscope::hid::sendKeyboardReport();
+   handleKeyswitchEvent(k, UnknownKeyswitchLocation, WAS_PRESSED | INJECTED);
+   kaleidoscope::Runtime.hid().keyboard().sendReport();
 }
 
 inline 
