@@ -37,16 +37,137 @@
 // when the keyboard is connected to a computer (or that computer is powered on)
 #include "Kaleidoscope-LEDEffect-BootGreeting.h"
 
+#include "kaleidoscope/host_keymap/linux/us/standard/keymap.h"
+#include "kaleidoscope/host_keymap/linux/de/standard/keymap.h"
+
+//******************************************************************************
+// This keymap supports four operation modes that support both norman and 
+// standard (qwerty/qwertz) keymaps being used on machines with
+// host keymap selected as de or eurkey.
+//******************************************************************************
+//
+// If the green LED is on, this means that the keymap is set to Norman
+// keymap with Flo's special flavor of modifiers and layers
+//
+// In this case, the language flag (german/englisch) must correspond to the
+// keymap that is selected on the host.
+//
+// If the green LED is off, this means that the german keymap on the keyboard
+// translates to a german keymap on the host (must be selected) and
+// the same for US englisch keymap.
+//
+// To change keymap settings use the following keys that are only available on
+// a dedicated layer that is activated via the palm keys.
+//
+// To toggle normanness hit key (0, 10).
+// To toggle language hit key (0, 11).
+//******************************************************************************
+
+// Define the us standard keymap as default.
+//
+USE_HOST_KEYMAP(linux, us, standard)
+
 enum { MACRO_VERSION_INFO,
        MACRO_ANY,
        MACRO_SEARCH_WORD_UNDER_CURSOR,
-       MACRO_FILE_SEARCH
+       MACRO_FILE_SEARCH,
+       MACRO_TOGGLE_BASE_KEYMAP,
+       MACRO_TOGGLE_NORMAN,
+       MACRO_KEY_BACKTICK,
+       MACRO_KEY_CIRCUMFLEX
      };
 
 enum { NORMAN, M1, M2, M3, M4 }; // layers
 
-KEYMAPS(
+#define F_KEY_BACKTICK "`"
+#define F_KEY_CIRCUMFLEX "^"
+#define F_S_UMLAUT RALT(Key_S)
+#define F_A_UMLAUT RALT(Key_A)
+#define F_U_UMLAUT RALT(Key_U)
+#define F_O_UMLAUT RALT(Key_O)
 
+#define FLOS_KEYMAPS                                                           \
+  [NORMAN] = KEYMAP_STACKED                                                    \
+  (   ___,   ___,   ___,   ___,   ___,   ___, LCTRL("x"),                      \
+      ___,   "q",   "w",   "d",   "f",   "k", LCTRL("c"),                      \
+      ___,   "a",   "s",   "e",   "t",   "g", /* home row */                   \
+      ___,   "z",   "x",   "c",   "v",   "b", LCTRL("v"),                      \
+   Key_Escape, Key_Backspace, OSM(LeftShift), LCTRL("f"),                      \
+   ShiftToLayer(M4),                                                           \
+                                                                               \
+   Key_LEDEffectNext,___,___,___, ___,   ___,   ___,        \
+      ___,   "j",   "u",   "r",   "l",   ";",   ___,   \
+             "y",   "n",   "i",   "o",   "h",   ___,                           \
+      ___,   "p",   "m",   ",",   ".",   "/",   ___,                           \
+   LCTRL("s"), Key_Enter, Key_Space, Key_Tab,                                  \
+                           ShiftToLayer(M4)),                                  \
+                                                                               \
+   [M1] = KEYMAP_STACKED                                                       \
+   (   ___,   ___,   ___,   ___,   ___,   ___,   ___,                          \
+       ___,   "@",   "_",   "(",   ")",   F_KEY_CIRCUMFLEX,   ___,             \
+       ___,  "\\",   F_KEY_BACKTICK,   "{",   "}",   "*",                      \
+       ___,   "#",   "~",   "|",   "$",   ___,   ___,                          \
+       ___,   ___,   ___,  M(MACRO_SEARCH_WORD_UNDER_CURSOR),                  \
+       ___,                                                                    \
+                                                                               \
+       ___,   ___,   ___,   ___,   ___,   ___,   ___,                          \
+       ___,   "!",   "<",   ">",   "=",   "&",   ___,                          \
+              "?",   "(",   ")",   "-",   ":",   ___,                          \
+       ___,   "+",   "%",  "\"",   "'",   ";",   ___,                          \
+    LCTRL(LSHIFT("i")), Key_Insert, ___,  ___,                                 \
+    ___),                                                                      \
+                                                                               \
+   [M2] = KEYMAP_STACKED                                                       \
+   (   ___,   ___,   ___,   ___,   ___,   ___,   ___,                          \
+       ___, Key_PageUp, Key_Backspace, Key_UpArrow, Key_Delete, Key_PageDown, ___,  \
+       ___, Key_Home,      Key_LeftArrow,    Key_DownArrow,    Key_RightArrow, Key_End,  \
+    ___,         XXX,       Key_Tab,     XXX,     Key_Enter, XXX, ___,  \
+    ___,         ___,           ___,         M(MACRO_FILE_SEARCH),             \
+    ___,                                                                       \
+                                                                               \
+    ___,         ___,           ___,         ___,         ___,      ___,      ___, \
+    ___,         XXX,           "7",         "8",         "9",      XXX,  ___, \
+                 XXX,           "4",         "5",         "6",      ".",  ___, \
+    ___,         "0",           "1",         "2",         "3",      ",",  ___, \
+    ___,         ___,           ___,         ___,                              \
+    ___),                                                                      \
+                                                                               \
+   [M3] = KEYMAP_STACKED                                                       \
+   (___,         ___,           ___,         ___,         ___,      ___,      ___,  \
+    ___,         ___,           ___,         ___,         ___,      ___,      ___,  \
+    ___,         ___,           ___,         ___,         ___,      ___,            \
+    ___,         ___,           ___,         ___,         ___,      ___,      ___,  \
+    ___,         ___,           ___,         ___,                              \
+    ___,                                                                       \
+                                                                               \
+    ___,         ___,           ___,         ___,         ___,      ___,      ___,   \
+    ___,         XXX,        Key_F7,      Key_F8,      Key_F9,   Key_F12,  ___,\
+                 XXX,        Key_F4,      Key_F5,      Key_F6,   Key_F11,  ___,\
+    ___,         XXX,        Key_F1,      Key_F2,      Key_F3,   Key_F10,  ___,\
+    ___,         ___,           ___,         ___,                              \
+    ___),                                                                      \
+                                                                               \
+   [M4] = KEYMAP_STACKED                                                       \
+   (___,         ___,           ___,         ___,         ___,      ___,      ___, \
+    ___,         ___,           ___,         ___,         ___,      ___,      ___, \
+    ___,         ___,           F_S_UMLAUT,         F_A_UMLAUT,         ___,      ___,  \
+    ___,         ___,           ___,         ___,         ___,      ___,      ___, \
+    XXX,         Key_Delete,           Key_Enter,         LCTRL(Key_S),        \
+    ___,                                                                       \
+                                                                               \
+    ___,         M(MACRO_TOGGLE_NORMAN),           M(MACRO_TOGGLE_BASE_KEYMAP),         ___,         ___,      ___,      ___,  \
+    ___,         ___,           ___,         ___,         ___,      ___,      ___,  \
+                 ___,           ___,         F_U_UMLAUT,         F_O_UMLAUT,      ___,      ___,  \
+    ___,         ___,           ___,         ___,         ___,      ___,      ___,     \
+    ___,         ___,           ___,         ___,                              \
+    ___) 
+
+
+KEYMAPS(
+   
+   FLOS_KEYMAPS
+
+#if 0
   [NORMAN] = KEYMAP_STACKED
   (___,  ___,   ___, ___, ___,      ___,      LCTRL(Key_X),
    ___,      Key_Q,         Key_W,       Key_D,       Key_F,    Key_K,    LCTRL(Key_C),
@@ -121,8 +242,174 @@ KEYMAPS(
     ___,         ___,           ___,         ___,         ___,      ___,      ___,   
     ___,         ___,           ___,         ___,
     ___) 
+#endif
 
 )
+
+#undef CONVERT_TO_KEY
+#define CONVERT_TO_KEY(INPUT) MAP_WITH_HOST_KEYMAP(linux, de, standard, INPUT)
+
+#undef F_KEY_BACKTICK
+#define F_KEY_BACKTICK M(MACRO_KEY_BACKTICK)
+
+#undef F_KEY_CIRCUMFLEX
+#define F_KEY_CIRCUMFLEX M(MACRO_KEY_CIRCUMFLEX)
+
+#undef F_S_UMLAUT
+#define F_S_UMLAUT L"ß"
+
+#undef F_A_UMLAUT
+#define F_A_UMLAUT L"ä"
+
+#undef F_U_UMLAUT
+#define F_U_UMLAUT L"ü"
+
+#undef F_O_UMLAUT
+#define F_O_UMLAUT L"ö"
+
+constexpr Key keymaps_norman_de[][kaleidoscope_internal::device.matrix_rows * kaleidoscope_internal::device.matrix_columns] PROGMEM = {
+   FLOS_KEYMAPS
+};
+
+constexpr Key keymaps_standard_us[][kaleidoscope_internal::device.matrix_rows * kaleidoscope_internal::device.matrix_columns] PROGMEM = {
+
+  [0] = KEYMAP_STACKED
+  (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
+   Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
+   Key_PageUp,   Key_A, Key_S, Key_D, Key_F, Key_G,
+   Key_PageDown, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_Escape,
+   Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
+   ShiftToLayer(1),
+
+   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         ___,
+   Key_Enter,     Key_Y, Key_U, Key_I,     Key_O,         Key_P,         Key_Equals,
+                  Key_H, Key_J, Key_K,     Key_L,         Key_Semicolon, Key_Quote,
+   Key_RightAlt,  Key_N, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_Minus,
+   Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
+   ShiftToLayer(1)),
+   
+   [1] = KEYMAP_STACKED
+   (___,         ___,           ___,         ___,         ___,      ___,      ___,
+    ___,         ___,           ___,         ___,         ___,      ___,      ___,
+    ___,         ___,           ___,         ___,         ___,      ___,    
+    ___,         ___,           ___,         ___,         ___,      ___,      ___,
+    ___,         ___,           ___,         ___,
+    ___,
+    
+    ___,         M(MACRO_TOGGLE_NORMAN),           M(MACRO_TOGGLE_BASE_KEYMAP),         ___,         ___,      ___,      ___,
+    ___,         ___,       ___,      ___,      ___,   ___,  ___,
+                 ___,        ___,      ___,      ___,   ___,  ___,
+    ___,         ___,        ___,      ___,      ___,   ___,  ___,   
+    ___,         ___,           ___,         ___,
+    ___)
+};
+
+constexpr Key keymaps_standard_de[][kaleidoscope_internal::device.matrix_rows * kaleidoscope_internal::device.matrix_columns] PROGMEM = {
+
+  [0] = KEYMAP_STACKED
+  (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
+   Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
+   Key_PageUp,   Key_A, Key_S, Key_D, Key_F, Key_G,
+   Key_PageDown, "y", Key_X, Key_C, Key_V, Key_B, Key_Escape,
+   Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
+   ShiftToLayer(1),
+
+   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         L"ß",
+   Key_Enter,     "z", Key_U, Key_I,     Key_O,         Key_P,         L"ü",
+                  Key_H, Key_J, Key_K,     Key_L,         L"ö", L"ä",
+   Key_RightAlt,  Key_N, Key_M, Key_Comma, Key_Period,    Key_Minus,     ___,
+   Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
+   ShiftToLayer(1)),
+   
+   [1] = KEYMAP_STACKED
+   (___,         ___,           ___,         ___,         ___,      ___,      ___,
+    ___,         ___,           ___,         ___,         ___,      ___,      ___,
+    ___,         ___,           ___,         ___,         ___,      ___,    
+    ___,         ___,           ___,         ___,         ___,      ___,      ___,
+    ___,         ___,           ___,         ___,
+    ___,
+    
+    ___,         M(MACRO_TOGGLE_NORMAN),           M(MACRO_TOGGLE_BASE_KEYMAP),         ___,         ___,      ___,      ___,
+    ___,         ___,       ___,      ___,      ___,   ___,  ___,
+                 ___,        ___,      ___,      ___,   ___,  ___,
+    ___,         ___,        ___,      ___,      ___,   ___,  ___,   
+    ___,         ___,           ___,         ___,
+    ___)
+};
+
+enum {
+   KeymapUS = 0,
+   KeymapDE = 1
+};
+
+uint8_t cur_keymap = KeymapDE;
+uint8_t is_norman = 1;
+
+Key personalGetKeyFromPROGMEM(uint8_t layer, KeyAddr key_addr) {
+   switch(cur_keymap) {
+      case KeymapUS:
+         if(is_norman) {
+            return keyFromKeymap(layer, key_addr);
+         }
+         else {
+            return keymaps_standard_us[layer][key_addr.toInt()].readFromProgmem();
+         }
+         break;
+      case KeymapDE:
+         if(is_norman) {
+            return keymaps_norman_de[layer][key_addr.toInt()].readFromProgmem();
+         }
+         else {
+            return keymaps_standard_de[layer][key_addr.toInt()].readFromProgmem();
+         }
+         break;
+   }
+}
+
+constexpr KeyAddr lFlag1{0, 11};
+constexpr KeyAddr lFlag2{0, 12};
+constexpr KeyAddr lFlag3{0, 13};
+
+constexpr KeyAddr nFlag{0, 10};
+
+constexpr cRGB red     = CRGB(255,   0,   0);
+constexpr cRGB green   = CRGB(  0, 255,   0);
+constexpr cRGB blue    = CRGB(  0,   0, 255);
+constexpr cRGB yellow  = CRGB(255, 255,   0);
+constexpr cRGB black   = CRGB(  0,   0,   0);
+
+void setLanguageLEDsUS() {
+   LEDControl.setCrgbAt(lFlag1, blue);
+   LEDControl.setCrgbAt(lFlag2, red);
+   LEDControl.setCrgbAt(lFlag3, black);
+   LEDControl.syncLeds();
+}
+
+void setLanguageLEDsDE() {
+   LEDControl.setCrgbAt(lFlag1, black);
+   LEDControl.setCrgbAt(lFlag2, red);
+   LEDControl.setCrgbAt(lFlag3, yellow);
+   LEDControl.syncLeds();
+}
+
+void updateKeymapLanguageLEDs()
+{
+   if(is_norman) {
+      LEDControl.setCrgbAt(nFlag, green);
+   }
+   else {
+      LEDControl.setCrgbAt(nFlag, black);
+   }
+      
+   switch(cur_keymap) {
+      case KeymapUS:
+         setLanguageLEDsUS();
+         break;
+      case KeymapDE:
+         setLanguageLEDsDE();
+         break;
+   }
+}
 
 static void versionInfoMacro(uint8_t keyState) {
   if (keyToggledOn(keyState)) {
@@ -197,7 +484,11 @@ void setup() {
    // with USB devices
    LEDOff.activate();
    
+   kaleidoscope::Layer_::getKey = &personalGetKeyFromPROGMEM;
+   
    Kaleidoscope.setup();
+   
+   updateKeymapLanguageLEDs();
 }
 
 // void loop() {
@@ -305,6 +596,34 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
       case MACRO_FILE_SEARCH:
          tapKey(LSHIFT(Key_F1));
          tapKey(Key_Enter);
+         break;
+         
+      case MACRO_TOGGLE_BASE_KEYMAP:
+         if(keyToggledOff(keyState)) {
+            cur_keymap ^= 1; // Flip bit
+            updateKeymapLanguageLEDs();
+         }
+         break;
+         
+      case MACRO_TOGGLE_NORMAN:
+         if(keyToggledOff(keyState)) {
+            is_norman ^= 1; // Flip bit
+            updateKeymapLanguageLEDs();
+         }
+         break;
+         
+      case MACRO_KEY_BACKTICK:
+         if(keyToggledOff(keyState)) {
+            tapKey(LSHIFT(Key_Equals));
+            tapKey(Key_Space);
+         }
+         break;
+         
+      case MACRO_KEY_CIRCUMFLEX:
+         if(keyToggledOff(keyState)) {
+            tapKey(Key_Equals);
+            tapKey(Key_Space);
+         }
          break;
   }
   return MACRO_NONE;
