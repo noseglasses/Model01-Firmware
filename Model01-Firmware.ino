@@ -104,7 +104,7 @@ enum { NORMAN, M1, M2, M3, M4 }; // layers
                                                                                \
    [M1] = KEYMAP_STACKED                                                       \
    (   ___,   ___,   ___,   ___,   ___,   ___,   ___,                          \
-       ___,   "@",   "_",   "(",   ")",   F_KEY_CIRCUMFLEX,   ___,             \
+       ___,   "@",   "_",   "[",   "]",   F_KEY_CIRCUMFLEX,   ___,             \
        ___,  "\\",   F_KEY_BACKTICK,   "{",   "}",   "*",                      \
        ___,   "#",   "~",   "|",   "$",   ___,   ___,                          \
        ___,   ___,   ___,  M(MACRO_SEARCH_WORD_UNDER_CURSOR),                  \
@@ -621,7 +621,7 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
          
       case MACRO_KEY_CIRCUMFLEX:
          if(keyToggledOff(keyState)) {
-            tapKey(Key_Equals);
+            tapKey(Key_Backtick);
             tapKey(Key_Space);
          }
          break;
